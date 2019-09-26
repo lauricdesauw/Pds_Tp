@@ -1,1 +1,1 @@
- type token = POINT | COMMA | SEMICOLON | L_CHEVRON | R_CHEVRON | STR of string;
+ type token = QUOT | COMMA | SEMICOLON | L_CHEVRON | R_CHEVRON | STR of string;
