@@ -32,7 +32,7 @@ let rec ntriples_of_ast doc =
 ;;
 
 (* Function to generate the document out of the AST*)
-
+(*
 let suj1 = "Moi";;
 let suj2 = "Elle";;
 let verb1 = "Aimer";;
@@ -51,3 +51,4 @@ let ens2 = Ens (suj2,attr2::attr3::[]);;
 
 let doc = Doc (ens1::ens2::[]);;
 print_string (ntriples_of_ast doc);;
+*)

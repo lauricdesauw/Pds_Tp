@@ -6,12 +6,16 @@ let parse_cpl = parser
               | [< 'QUOT ; 'STR (x) ; 'QUOT >] -> Txt x;;
 
 let rec parse_cpl_list = parser
-                       | [< 'COMMA ; head = parse_cpl ; tail = parse_cpl_list >] -> head::tail;;
-                       | [< EOF >] -> []
+                       | [< 'COMMA ; head = parse_cpl ; tail = parse_cpl_list >] -> head::tail
                        | [< >] -> []
+                       | [< EOF >] -> [];;
+
+let get_name = function
+  | Obj x -> x
+  | Txt x -> x;;
 
 let parse_attr = parser
-               | [< name = parse_cpl ; head = parse_cpl ; tail = parse_cpl_list >] -> Attr (name, head::tail);;
+               | [< name = parse_cpl ; head = parse_cpl ; tail = parse_cpl_list >] -> Attr (get_name name, head::tail);;
 
 let rec parse_attr_list = parser
                         | [< 'SEMICOLON ; head = parse_attr ; tail = parse_attr_list >] -> head::tail
@@ -20,7 +24,7 @@ let rec parse_attr_list = parser
 
 let parse_ens = parser
               | [< name = parse_cpl ; first_attr = parse_attr ; other_attr = parse_attr_list >]
-                -> Ens (name, first_attr::other_attr);;
+                -> Ens (get_name name, first_attr::other_attr);;
 
 let rec parse_ens_list = parser
                        | [< head = parse_ens ; 'POINT ; tail = parse_ens_list >]

@@ -134,32 +134,32 @@ and __ocaml_lex_tokenize_rec lexbuf __ocaml_lex_state =
 
   | 2 ->
 # 31 "lexer.mll"
-    ( STR(Lexing.lexeme lexbuf) )
+    ( STR(Lexing.lexeme lexbuf) :: tokenize lexbuf )
 # 139 "lexer.ml"
 
   | 3 ->
 # 33 "lexer.mll"
-    ( COMA )
+    ( COMMA :: tokenize lexbuf )
 # 144 "lexer.ml"
 
   | 4 ->
 # 35 "lexer.mll"
-    ( SEMICOLON )
+    ( SEMICOLON :: tokenize lexbuf )
 # 149 "lexer.ml"
 
   | 5 ->
 # 37 "lexer.mll"
-    ( QUOT )
+    ( QUOT :: tokenize lexbuf )
 # 154 "lexer.ml"
 
   | 6 ->
 # 39 "lexer.mll"
-    ( L_CHEVRON )
+    ( L_CHEVRON :: tokenize lexbuf )
 # 159 "lexer.ml"
 
   | 7 ->
 # 41 "lexer.mll"
-    ( R_CHEVRON )
+    ( R_CHEVRON :: tokenize lexbuf )
 # 164 "lexer.ml"
 
   | 8 ->
