@@ -2,8 +2,8 @@ open ASD
 open Token
 
 let parse_cpl = parser
-              | [< 'L_CHEVRON ; 'STR(x) ; 'R_CHEVRON >] -> Obj x
-              | [< 'QUOT ; 'STR (x) ; 'QUOT >] -> Txt x;;
+              | [< 'OBJ x >] -> Obj x
+              | [< 'TXT x >] -> Txt x;;
 
 let rec parse_cpl_list = parser
                        | [< 'COMMA ; head = parse_cpl ; tail = parse_cpl_list >] -> head::tail
@@ -19,6 +19,7 @@ let parse_attr = parser
 
 let rec parse_attr_list = parser
                         | [< 'SEMICOLON ; head = parse_attr ; tail = parse_attr_list >] -> head::tail
+                        | [< 'SEMICOLON >] -> []
                         | [< >] -> []
                         | [< EOF >] -> [];;
 
