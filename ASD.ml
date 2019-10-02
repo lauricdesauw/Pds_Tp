@@ -1,9 +1,9 @@
 (* ASD type *)
 type obj = string;;
 type cpl = Obj of obj |Txt of string ;; 
-type attr = {name : obj; cpl : cpl list; mutable var : cpl list};;
-type ens = {name : obj; attr : attr list};;
-type document = ens list;;
+type attr = Attr of obj * (cpl list);;
+type ens = Ens of obj * (attr list);;
+type document = Doc of (ens list);;
 
 let read_obj o = "<"^o^">";;
 

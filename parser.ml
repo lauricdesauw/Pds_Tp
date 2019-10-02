@@ -1,12 +1,31 @@
 open ASD
 open Token
 
-let rec parse = parser 
-    | [< L_CHEVRON; STR(x); R_CHEVRON; SEMICOLON >] -> Obj x (* return the cpl in obj version *)
-    | [< QUOT; STR(x); QUOT; SEMICOLON >] -> Txt x (* return the cpl in txt version *)
-    | [< >] -> (*cpl, _  -> we have to make a cpl list *)
-    (*attr cpl; -> attr of cpl *)
-    (*attr, _ -> we have to make the list of attr *)
-    (*subject attr -> subject of attr *)
-    ;
+let parse_cpl = parser
+              | [< 'L_CHEVRON ; 'STR(x) ; 'R_CHEVRON >] -> Obj x
+              | [< 'QUOT ; 'STR (x) ; 'QUOT >] -> Txt x;;
 
+let rec parse_cpl_list = parser
+                       | [< 'COMMA ; head = parse_cpl ; tail = parse_cpl_list >] -> head::tail;;
+                       | [< EOF >] -> []
+                       | [< >] -> []
+
+let parse_attr = parser
+               | [< name = parse_cpl ; head = parse_cpl ; tail = parse_cpl_list >] -> Attr (name, head::tail);;
+
+let rec parse_attr_list = parser
+                        | [< 'SEMICOLON ; head = parse_attr ; tail = parse_attr_list >] -> head::tail
+                        | [< >] -> []
+                        | [< EOF >] -> [];;
+
+let parse_ens = parser
+              | [< name = parse_cpl ; first_attr = parse_attr ; other_attr = parse_attr_list >]
+                -> Ens (name, first_attr::other_attr);;
+
+let rec parse_ens_list = parser
+                       | [< head = parse_ens ; 'POINT ; tail = parse_ens_list >]
+                         -> head::tail
+                       | [< >] -> []
+                       | [< EOF >] -> [];;
+
+let parse (tokens:token Stream.t) = Doc (parse_ens_list tokens);; 
