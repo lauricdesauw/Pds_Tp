@@ -38,6 +38,12 @@ rule tokenize = parse
       { RP        :: tokenize lexbuf }
   | '+'
       { PLUS      :: tokenize lexbuf }
+  | '-'
+      { MINUS      :: tokenize lexbuf }
+  | '*'
+      { MUL      :: tokenize lexbuf }
+  | '/'
+      { DIV      :: tokenize lexbuf }
 
   (* TODO : other keywords *)
 
