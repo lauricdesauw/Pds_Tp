@@ -4,6 +4,9 @@ type ident = string
 
 type expression =
   | AddExpression of expression * expression
+  | SubExpression of expression * expression
+  | MulExpression of expression * expression
+  | DivExpression of expression * expression
   | IntegerExpression of int
 
 type typ =
