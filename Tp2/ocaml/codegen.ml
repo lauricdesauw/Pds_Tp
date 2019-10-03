@@ -29,5 +29,23 @@ and ir_of_expression : expression -> llvm_ir * llvm_value = function
      let x = newtmp () in
      let ir = ir1 @@ ir2 @: llvm_add ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
      ir, LLVM_var x
-
+  | SubExpression (e1,e2) ->
+     let ir1, v1 = ir_of_expression e1 in
+     let ir2, v2 = ir_of_expression e2 in
+     let x = newtmp () in
+     let ir = ir1 @@ ir2 @: llvm_sub ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
+     ir, LLVM_var x
+    
+  | MulExpression (e1,e2) ->
+     let ir1, v1 = ir_of_expression e1 in
+     let ir2, v2 = ir_of_expression e2 in
+     let x = newtmp () in
+     let ir = ir1 @@ ir2 @: llvm_mul ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
+     ir, LLVM_var x
+  | DivExpression (e1,e2) ->
+     let ir1, v1 = ir_of_expression e1 in
+     let ir2, v2 = ir_of_expression e2 in
+     let x = newtmp () in
+     let ir = ir1 @@ ir2 @: llvm_div ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
+     ir, LLVM_var x
 (* TODO: complete with new cases and functions when you extend your language *)
