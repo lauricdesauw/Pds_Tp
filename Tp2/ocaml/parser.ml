@@ -37,8 +37,17 @@ and expression = parser
   | [< e1 = factor; e = expression_aux e1 >] -> e
 
 and expression_aux e1 = parser
-  | [< 'PLUS;  e2 = factor; e = expression_aux (AddExpression (e1, e2)) >] -> e
-  | [<>] -> e1
+                      | [< 'PLUS;  e2 = factor; e = expression_aux (AddExpression (e1, e2)) >] -> e
+                      | [< 'MINUS ; 'LP ; e2 = expression ; 'RP ;
+                           e = expression_aux (SubExpression (e1, e2)) >] -> e 
+                      | [< 'MINUS ; e2 = factor ; e = expresion_aux (SubExpression (e1, e2)) >] -> e
+                      | [< 'MUL ; 'LP ; e2 = expression ; 'RP ;
+                           e = expression_aux (MulExpression (e1, e2)) >] -> e
+                      | [< 'MUL ; e2 = factor ; e = expresion_aux (MulExpression (e1, e2)) >] -> e
+                      | [< 'DIV ; 'LP ; e2 = expression ; 'RP ;
+                           e = expression_aux (DivExpression (e1, e2)) >] -> e
+                      | [< 'DIV ; e2 = factor ; e = expresion_aux (DivExpression (e1, e2)) >] -> e
+                      | [<>] -> e1
   (* TODO : that's all? *)
 
 and factor = parser
