@@ -1,4 +1,5 @@
 open Lexer
+open Prettyprinter
 
 let _ =
   try
@@ -10,7 +11,7 @@ let _ =
     (* Activate one of these output: pretty-print or LLVM IR *)
 
     (* Pretty-print input *)
-    (*print_endline (Prettyprinter.prettyprint ast)*)
+    print_endline (Prettyprinter.prettyprint ast);
 
     (* Print LLVM IR *)
     let ir = Codegen.ir_of_ast ast in
