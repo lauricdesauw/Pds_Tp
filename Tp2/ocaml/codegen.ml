@@ -47,4 +47,8 @@ and ir_of_expression : expression -> llvm_ir * llvm_value = function
      let x = newtmp () in
      let ir = ir1 @@ ir2 @: llvm_div ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
      ir, LLVM_var x
+  | AttrExpression(name,e) -> 
+    let ir,v = ir_of_expression e in 
+    let ir = ir @ llvm_attr ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+    ir,LLVM_type_i32 name
 (* TODO: complete with new cases and functions when you extend your language *)

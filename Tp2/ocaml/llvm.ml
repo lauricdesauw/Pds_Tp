@@ -96,9 +96,11 @@ let llvm_mul ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) 
 let llvm_div ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) ~(right : llvm_value) : llvm_instr =
   string_of_var res_var ^ " = div " ^ string_of_type res_type ^ " " ^ string_of_value left ^ ", " ^ string_of_value right ^ "\n"
 
+let llvm_attr ~(res_var : llvm_var) ~(res_type : llvm_type) ~(value : llvm_value) : llvm_instr =
+ "%" ^ string_of_var res_var ^ " = " ^ string_of_type res_type ^ string_of_value value ^ "\n"
+
 let llvm_return ~(ret_type : llvm_type) ~(ret_value : llvm_value) : llvm_instr =
   "ret " ^ string_of_type ret_type ^ " " ^ string_of_value ret_value ^ "\n"
-
 (* defining the 'main' function with ir.body as function body *)
 let llvm_define_main (ir : llvm_ir) : llvm_ir =
   { header = ir.header;
