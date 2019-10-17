@@ -30,8 +30,7 @@ let list0 p sep = parser
 
 (* TODO : change when you extend the language *)
 let rec program = parser
-  | [< e = expression; _ = Stream.empty ?? "unexpected input at the end" >] -> e
-
+  | [< e = instruction; _ = Stream.empty ?? "unexpected input at the end" >] -> e
 
 and expression = parser
   | [< e1 = factor; e = expression_aux e1 >] -> e
@@ -63,3 +62,6 @@ and primary = parser
 
 and comma = parser
   | [< 'COM >] -> ()
+
+and instruction = parser
+                   | [<'IDENT id; 'ASSIGN; e = expression; >] -> AffectInstruction(id,e)

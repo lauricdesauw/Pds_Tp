@@ -11,10 +11,10 @@ let _ =
     (* Activate one of these output: pretty-print or LLVM IR *)
 
     (* Pretty-print input *)
-    print_endline (Prettyprinter.prettyprint ast);
+    print_endline (Prettyprinter.prettyprint (match ast with |AffectInstruction(_,x)->x));
 
     (* Print LLVM IR *)
-    let ir = Codegen.ir_of_ast (Expr ast) in
+    let ir = Codegen.ir_of_ast (Expr (match ast with |AffectInstruction(_,x)->x)) in
     print_endline (Llvm.string_of_ir ir)
 
   with
