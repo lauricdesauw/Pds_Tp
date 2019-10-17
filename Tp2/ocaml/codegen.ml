@@ -5,7 +5,7 @@ open SymbolTable
 
 
 (* main function. returns only a string: the generated code *)
-let rec ir_of_ast (prog : codObj) : llvm_ir = (* TODO: change 'expression' when you extend the language *)
+let rec ir_of_ast (prog : codeObj) : llvm_ir = (* TODO: change 'expression' when you extend the language *)
     (* TODO : change when you extend the language *)
     let ir, v =
         match prog with 
