@@ -3,8 +3,6 @@
 type ident = string
 
 
-type instruction = 
-    | AffectInstruction of string * expression
     
 type expression =
   | AddExpression of expression * expression
@@ -12,6 +10,9 @@ type expression =
   | MulExpression of expression * expression
   | DivExpression of expression * expression
   | IntegerExpression of int
+
+type instruction = 
+    | AffectInstruction of string * expression
 
 type codeObj = Expr of expression | Instr of instruction
 
