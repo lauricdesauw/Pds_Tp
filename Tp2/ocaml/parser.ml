@@ -32,30 +32,29 @@ let list0 p sep = parser
 let rec program = parser
   | [< e = expression; _ = Stream.empty ?? "unexpected input at the end" >] -> e
 
-
 and expression = parser
-  | [< e1 = factor; e = expression_aux e1 >] -> e
+                   | [< e1 = factor; e = expression_aux e1 >] -> e
 
 and expression_aux e1 = parser
                       | [< 'PLUS ; e2 = factor ; e = expression_aux (AddExpression (e1, e2)) >] -> e
                       | [< 'MINUS ; e2 = factor ; e = expression_aux (SubExpression (e1, e2)) >] -> e
                       | [< 'MUL ; e2 = factor ; e = expression_aux (MulExpression (e1, e2)) >] -> e
                       | [< 'DIV ; e2 = factor ; e = expression_aux (DivExpression (e1, e2)) >] -> e
-                      | [< 'RP ; e = expression_aux e1 >] -> e
-                      | [<>] -> e1
- 
+                      | [< 'RP >] -> e1
+                      | [< >] -> e1
+
   (* TODO : that's all? *)
 
 and factor = parser
            | [< e1 = primary; e = factor_aux e1 >] -> e
-           | [< 'LP; e = expression >] -> e
+           | [< 'LP ; e = expression >] -> e
 
 and factor_aux e1 = parser
                   | [< 'MUL ; e2 = primary ; e = factor_aux (MulExpression (e1, e2)) >] -> e
                   | [< 'DIV ; e2 = primary ; e = factor_aux (DivExpression (e1, e2)) >] -> e
                   | [< 'RP >] -> e1
                   | [<>] -> e1
-  (* TODO : that's all? *)
+(* TODO : that's all? *)
 
 and primary = parser
   | [< 'INTEGER x >] -> IntegerExpression x
