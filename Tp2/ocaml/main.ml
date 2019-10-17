@@ -22,5 +22,3 @@ let _ =
     Printf.printf "Unexpected character: `%c' at position '%d' on line '%d'\n"
 		  e.character e.pos e.line;
     exit 1
-
-

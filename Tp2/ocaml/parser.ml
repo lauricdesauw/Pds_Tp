@@ -40,7 +40,7 @@ and expression_aux e1 = parser
                       | [< 'PLUS ; e2 = factor ; e = expression_aux (AddExpression (e1, e2)) >] -> e
                       | [< 'MINUS ; e2 = factor ; e = expression_aux (SubExpression (e1, e2)) >] -> e
                       | [<>] -> e1
- 
+
   (* TODO : that's all? *)
 
 and factor = parser
