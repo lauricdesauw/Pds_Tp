@@ -10,7 +10,7 @@ let rec ir_of_ast (prog : codeObj) : llvm_ir = (* TODO: change 'expression' when
     let ir, v =
         match prog with 
     |Expr(exp) ->  ir_of_expression exp 
-    |Instr (inst) -> ir_of instruction inst in 
+    |Instr (inst) -> ir_of_instruction inst in 
     (* adds the return instruction *)
     let ir = ir @: llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v in
     (* We create the function main *)
@@ -53,7 +53,7 @@ and ir_of_expression : expression -> llvm_ir * llvm_value = function
 
         and ir_of_instruction : instruction -> llvm_ir * llvm_value = function
             | AffectInstruction(name,e) -> 
-                    let ir,v = ir_of_expression e in 
-                    let ir = ir @ llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+                    let ir0,v = ir_of_expression e in 
+                    let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
                     ir,LLVM_var name
             (* TODO: complete with new cases and functions when you extend your language *)
