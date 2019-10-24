@@ -64,4 +64,7 @@ and comma = parser
   | [< 'COM >] -> ()
 
 and instruction = parser
-                   | [<'IDENT id; 'ASSIGN; e = expression; >] -> AffectInstruction(id,e)
+                | [<'IDENT id; 'ASSIGN; e = expression; >] -> AffectInstruction(id,e)
+
+and bloc = parser
+         | [< 'LB; ld = many declaration; li = some instruction ; 'RB>] -> Bloc(ld,li)
