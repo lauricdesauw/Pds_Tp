@@ -30,8 +30,7 @@ let list0 p sep = parser
 
 (* TODO : change when you extend the language *)
 let rec program = parser
-  | [< e = instruction; _ = Stream.empty ?? "unexpected input at the end" >] -> e
-
+                | [< e = instruction; _ = Stream.empty ?? "unexpected input at the end" >] -> e
 
 and expression = parser
                    | [< e1 = factor; e = expression_aux e1 >] -> e
@@ -50,15 +49,16 @@ and factor = parser
            | [< e1 = primary; e = factor_aux e1 >] -> e
            | [< 'LP ; e = expression >] -> e
 
+
 and factor_aux e1 = parser
                   | [< 'MUL ; e2 = primary ; e = factor_aux (MulExpression (e1, e2)) >] -> e
                   | [< 'DIV ; e2 = primary ; e = factor_aux (DivExpression (e1, e2)) >] -> e
-                  | [< 'RP >] -> e1
                   | [<>] -> e1
 (* TODO : that's all? *)
 
 and primary = parser
-  | [< 'INTEGER x >] -> IntegerExpression x
+            | [< 'INTEGER x >] -> IntegerExpression x
+            | [< 'LP ; e = expression >] -> e
   (* TODO : that's all? *)
 
 and comma = parser
