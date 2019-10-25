@@ -16,12 +16,12 @@ type instruction =
 (*
 type declaration; *)
 
-type bloc =
-    | Bloc of (*(declaration list) * *) (instruction list)
 
 type codeObj = Expr of expression | Instr of instruction
+type bloc =
+    | Bloc of (codeObj list) 
 
 type typ =
   | Type_Int
 
-type program = expression
+type program = codeObj list
