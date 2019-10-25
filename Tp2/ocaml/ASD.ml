@@ -13,13 +13,11 @@ type expression =
 
 type instruction =
     | AffectInstruction of string * expression
-(*
-type declaration; *)
 
 
-type codeObj = Expr of expression | Instr of instruction
-type bloc =
-    | Bloc of (codeObj list) 
+type codeObj = Expr of expression | Instr of instruction | Bloc of (codeObj list)
+
+type bloc = codeObj list 
 
 type typ =
   | Type_Int

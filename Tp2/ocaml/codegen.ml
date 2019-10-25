@@ -10,7 +10,9 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     let ir, v =
         match prog with 
     |Expr(exp) ->  ir_of_expression (exp, symT) 
-    |Instr (inst) -> ir_of_instruction (inst, symT)  in 
+    |Instr (inst) -> ir_of_instruction (inst, symT)
+    |Bloc(c) -> ir_of_bloc(c,symT) 
+    in 
     (* adds the return instruction *)
     let ir = ir @: llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v in
     (* We create the function main *)
@@ -63,6 +65,6 @@ and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir =
     | [] -> empty_ir
     | t::q -> (ir_of_ast t symT) @@ (ir_of_program q symT) 
     
-and ir_of_bloc : bloc*symbol_table -> llvm_ir = function
-    | Bloc(l), symT -> 
-            ir_of_program l symT
+and ir_of_bloc : bloc*symbol_table -> llvm_ir* llvm_value = function
+    | l, symT -> 
+            (ir_of_program l symT),( LLVM_i32 0)

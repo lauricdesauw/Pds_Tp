@@ -10,13 +10,19 @@ let rec prettyprint_expr e =
     | DivExpression (l, r) -> "(" ^ (prettyprint_expr l) ^ " / " ^ (prettyprint_expr r) ^ ")"
     | IntegerExpression i -> string_of_int i
 
-let rec prettyprint_instr i = 
+and prettyprint_instr i = 
     match i with 
-    | AffectInstruction(name,e) -> name ^ (prettyprint_expr e)
+    | AffectInstruction(name,e) -> name ^ " := " ^ (prettyprint_expr e)
 
-let prettyprint ast =
+and prettyprint_bloc c = 
+    match c with 
+    | t::q -> prettyprint t ^ prettyprint_bloc q
+    | [] -> " "
+
+and prettyprint ast =
   match ast with
   | Expr(e) ->  prettyprint_expr e
-  | Instr(inst) ->  prettyprint_instr inst
+  | Instr(inst) ->  prettyprint_instr inst ^ "\n"
+  | Bloc(c) -> "{\n" ^ prettyprint_bloc c ^ "\n }"
 
 (* TODO : extend when you extend the language *)
