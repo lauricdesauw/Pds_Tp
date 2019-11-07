@@ -33,7 +33,7 @@ let rec program = parser
                 | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> e
 
 and expression = parser
-                   | [< e1 = factor; e = expression_aux e1 >] -> e 
+                   | [< e1 = factor; e = expression_aux e1 >] -> e
 
 and expression_aux e1 = parser
                       | [< 'PLUS ; e2 = factor ; e = expression_aux (AddExpression (e1, e2)) >] -> e
@@ -67,7 +67,10 @@ and comma = parser
 
 and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
-and bloc = parser 
+                | [<'IF_KW; e = expression; 'THEN_KW; b1 = bloc; 'ELSE_KW; b2 = bloc>] -> IfElseInstruction(e,b1,b2)
+                | [<'IF_KW; e = expression; 'THEN_KW; b = bloc>] -> IfInstruction(e,b)
+
+and bloc = parser
 | [< c = bloc_aux >] -> Bloc c
 
 
@@ -75,6 +78,3 @@ and bloc_aux = parser
 | [< i = instruction ; q = bloc_aux >] -> i::q
 | [< 'LB ; c1 = bloc ; 'RB ; c2 = bloc_aux >] -> c1::c2
 | [< >] -> []
-
-
-
