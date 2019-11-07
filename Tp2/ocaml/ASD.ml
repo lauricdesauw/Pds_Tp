@@ -10,6 +10,7 @@ type expression =
   | MulExpression of expression * expression
   | DivExpression of expression * expression
   | IntegerExpression of int
+  | VarExpression of string
 
 type instruction =
     | AffectInstruction of string * expression
