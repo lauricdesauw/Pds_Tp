@@ -50,6 +50,12 @@ rule tokenize = parse
       { MUL       :: tokenize lexbuf }
   | '/'
       { DIV       :: tokenize lexbuf }
+  | "IF"
+      { IF_KW       :: tokenize lexbuf }
+  | "THEN"
+      { THEN_KW       :: tokenize lexbuf }
+  | "ELSE"
+      { ELSE_KW       :: tokenize lexbuf }
 
   (* TODO : other keywords *)
 
