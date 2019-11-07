@@ -19,6 +19,6 @@ type instruction =
                          
 type codeObj = Expr of expression | Instr of instruction | Bloc of (codeObj list)
 
-type bloc = codeObj list 
+type bloc = (instruction list) * (codeObj list)
 
 type program = codeObj list
