@@ -69,7 +69,7 @@ and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
                 | [<'IF_KW; e = expression; 'THEN_KW; b1 = bloc; 'ELSE_KW; b2 = bloc>] -> Instr(IfElseInstruction(e,b1,b2))
                 | [<'IF_KW; e = expression; 'THEN_KW; b = bloc>] -> Instr(IfInstruction(e,b))
-                | [< 'INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+                | [< 'INT_KW; id_list = decl >] -> DeclInstruction(Type_Int, id_list)
 
 and decl = parser
          | [< 'IDENT id ; tl = decl >] -> id::tl

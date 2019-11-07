@@ -5,6 +5,9 @@ type ident = string
 type typ =
   | Type_Int
 
+type declaration =
+    | DeclInstruction of typ * (string list)
+
 type expression =
   | AddExpression of expression * expression
   | SubExpression of expression * expression
@@ -15,12 +18,11 @@ type expression =
 
 type instruction =
   | AffectInstruction of string * expression
-  | DeclInstruction of typ * (string list)
   | IfInstruction of expression * bloc
   | IfElseInstruction of expression * bloc * bloc
 
-and codeObj = Expr of expression | Instr of instruction | Bloc of bloc
+and codeObj = Decl of declaration | Expr of expression | Instr of instruction | Bloc of bloc
 
-and bloc = (instruction list) * (codeObj list)
+and bloc = (declaration list) * (codeObj list)
 
 type program = codeObj list
