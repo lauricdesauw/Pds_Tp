@@ -58,6 +58,7 @@ and factor_aux e1 = parser
 
 and primary = parser
             | [< 'INTEGER x >] -> IntegerExpression x
+            | [< 'IDENT id >] -> VarExpression id
             | [< 'LP ; e = expression >] -> e
   (* TODO : that's all? *)
 
