@@ -75,13 +75,9 @@ and decl = parser
          | [< 'IDENT id ; tl = decl >] -> id::tl
          | [< >] -> []
 
-<<<<<<< HEAD
+
 and bloc = parser 
 | [< c = bloc_aux >] -> Bloc (split_bloc c)
-=======
-and bloc = parser
-| [< c = bloc_aux >] -> Bloc c
->>>>>>> bfcf6ab337332528a99c4c7ca001b9cf75b50711
 
 and split_bloc = function
   | [] -> [], []
