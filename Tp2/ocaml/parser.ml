@@ -76,7 +76,13 @@ and decl = parser
          | [< >] -> []
 
 and bloc = parser
-| [< c = bloc_aux >] -> Bloc c
+| [< c = bloc_aux >] -> Bloc (split_bloc c)
+
+and split_bloc = function
+  | [] -> [], []
+  | (DeclInstruction p)::q -> let decl, aff = split_bloc q in
+    ((DeclInstruction p)::decl), aff
+  | i::q -> [], (i::q)
 
 and bloc_aux = parser
 | [< i = instruction ; q = bloc_aux >] -> i::q
