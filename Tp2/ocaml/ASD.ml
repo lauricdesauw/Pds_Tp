@@ -15,7 +15,7 @@ type expression =
 
 type instruction =
   | AffectInstruction of string * expression
-  | DeclInstruction of typ * string
+  | DeclInstruction of typ * (string list)
                          
 type codeObj = Expr of expression | Instr of instruction | Bloc of (codeObj list)
 

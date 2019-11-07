@@ -66,7 +66,13 @@ and comma = parser
   | [< 'COM >] -> ()
 
 and instruction = parser
-                | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [< 'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [< INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+
+and decl = parser
+         | [< 'IDENT id ; tl = decl >] -> id::tl
+         | [< >] -> []
+
 and bloc = parser 
 | [< c = bloc_aux >] -> Bloc c
 
