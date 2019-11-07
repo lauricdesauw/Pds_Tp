@@ -33,7 +33,7 @@ let rec program = parser
                 | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> e
 
 and expression = parser
-                   | [< e1 = factor; e = expression_aux e1 >] -> e 
+                   | [< e1 = factor; e = expression_aux e1 >] -> e
 
 and expression_aux e1 = parser
                       | [< 'PLUS ; e2 = factor ; e = expression_aux (AddExpression (e1, e2)) >] -> e
@@ -66,15 +66,22 @@ and comma = parser
   | [< 'COM >] -> ()
 
 and instruction = parser
-                | [< 'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [<'IF_KW; e = expression; 'THEN_KW; b1 = bloc; 'ELSE_KW; b2 = bloc>] -> IfElseInstruction(e,b1,b2)
+                | [<'IF_KW; e = expression; 'THEN_KW; b = bloc>] -> IfInstruction(e,b)
                 | [< INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
 
 and decl = parser
          | [< 'IDENT id ; tl = decl >] -> id::tl
          | [< >] -> []
 
+<<<<<<< HEAD
 and bloc = parser 
 | [< c = bloc_aux >] -> Bloc (split_bloc c)
+=======
+and bloc = parser
+| [< c = bloc_aux >] -> Bloc c
+>>>>>>> bfcf6ab337332528a99c4c7ca001b9cf75b50711
 
 and split_bloc = function
   | [] -> [], []
@@ -86,6 +93,3 @@ and bloc_aux = parser
 | [< i = instruction ; q = bloc_aux >] -> i::q
 | [< 'LB ; c1 = bloc ; 'RB ; c2 = bloc_aux >] -> c1::c2
 | [< >] -> []
-
-
-

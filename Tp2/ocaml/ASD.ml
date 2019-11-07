@@ -15,10 +15,12 @@ type expression =
 
 type instruction =
   | AffectInstruction of string * expression
-  | DeclInstruction of typ * (string list)
-                         
-type codeObj = Expr of expression | Instr of instruction | Bloc of (codeObj list)
+  | DeclInstruction of typ * string
+  | IfInstruction of expression * bloc
+  | IfElseInstruction of expression * bloc * bloc
 
-type bloc = (instruction list) * (codeObj list)
+and codeObj = Expr of expression | Instr of instruction | Bloc of (codeObj list)
+
+and bloc = (instruction list) * (codeObj list)
 
 type program = codeObj list
