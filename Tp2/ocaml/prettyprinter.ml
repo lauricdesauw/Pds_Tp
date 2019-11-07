@@ -2,20 +2,22 @@ open ASD
 
 (* main function. return only a string *)
 
-let rec prettyprint_expr e = 
-    match e with 
+let rec prettyprint_expr e =
+    match e with
     | AddExpression (l, r) -> "(" ^ (prettyprint_expr l) ^ " + " ^ (prettyprint_expr r) ^ ")"
     | SubExpression (l, r) -> "(" ^ (prettyprint_expr l) ^ " - " ^ (prettyprint_expr r) ^ ")"
     | MulExpression (l, r) -> "(" ^ (prettyprint_expr l) ^ " * " ^ (prettyprint_expr r) ^ ")"
     | DivExpression (l, r) -> "(" ^ (prettyprint_expr l) ^ " / " ^ (prettyprint_expr r) ^ ")"
     | IntegerExpression i -> string_of_int i
 
-and prettyprint_instr i = 
-    match i with 
+and prettyprint_instr i =
+    match i with
     | AffectInstruction(name,e) -> name ^ " := " ^ (prettyprint_expr e)
-
-and prettyprint_bloc c = 
-    match c with 
+    | IfInstruction(e,b) -> "IF " ^ (prettyprint_expr e) ^ " THEN \n" ^ (prettyprint_bloc b)
+    | IfElseInstruction(e,b1,b2) -> "IF " ^ (prettyprint_expr e) ^ " THEN :\n" ^ (prettyprint_bloc b1) ^ " \n ELSE :\n" ^ (prettyprint_bloc b2)
+    
+and prettyprint_bloc c =
+    match c with
     | t::q -> prettyprint t ^ prettyprint_bloc q
     | [] -> " "
 
