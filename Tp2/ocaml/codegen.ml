@@ -2,7 +2,7 @@ open ASD
 open Llvm
 open Utils
 open SymbolTable
-
+open List
 
 (* main function. returns only a string: the generated code *)
 let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: change 'expression' when you extend the language *)
@@ -56,23 +56,26 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
             let ir = ir1 @@ ir2 @: llvm_div ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
             ir, LLVM_var x
 
-and ir_of_instruction : instruction*symbol_table -> llvm_ir * llvm_value*symbol_table = function
+and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * symbol_table = function
     | AffectInstruction(name,e), symT -> 
             let ir0,v = ir_of_expression (e,symT) in 
             let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
-            ir,LLVM_var name,symT
+            ir,(LLVM_var name),symT
             (* TODO: complete with new cases and functions when you extend your language *)
     
-    | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var typ), LLVM_i32 0,(add_list typ l_var symT)
+    | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
                    
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir
     | t::q -> (ir_of_ast t symT) @@ (ir_of_program q symT) 
-    
+
 and ir_of_bloc : bloc*symbol_table -> llvm_ir* llvm_value = function
-    | l, symT -> 
-            (ir_of_program l symT),( LLVM_i32 0)
+  | (instr_l,codeObj_list ), symT ->
+     let foobar = function instr -> ir_of_instruction instr,symT in 
+     let ir_list = List.map foobar instr_l  in
+     let ir0,v0,sym0 = List.fold_left (@:) empty_ir ir_list in
+     (ir0 @: (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
 
 
 
