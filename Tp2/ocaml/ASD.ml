@@ -23,4 +23,4 @@ and codeObj = Expr of expression | Instr of instruction | Bloc of bloc
 
 and bloc = (instruction list) * (codeObj list)
 
-type program = codeObj list
+type program = codeObj

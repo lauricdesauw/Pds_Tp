@@ -30,7 +30,7 @@ let list0 p sep = parser
 
 (* TODO : change when you extend the language *)
 let rec program = parser
-                | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> e
+                | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> Bloc e
 
 and expression = parser
                    | [< e1 = factor; e = expression_aux e1 >] -> e
@@ -69,10 +69,10 @@ and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
                 | [<'IF_KW; e = expression; 'THEN_KW; b1 = bloc; 'ELSE_KW; b2 = bloc>] -> Instr(IfElseInstruction(e,b1,b2))
                 | [<'IF_KW; e = expression; 'THEN_KW; b = bloc>] -> Instr(IfInstruction(e,b))
-                | [< 'INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+                | [< 'INT_KW; 'IDENT id; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
 
 and decl = parser
-         | [< 'IDENT id ; tl = decl >] -> id::tl
+         | [< 'COM; 'IDENT id ; tl = decl >] -> id::tl
          | [< >] -> []
 
 and bloc = parser 
