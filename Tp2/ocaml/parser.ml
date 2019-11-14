@@ -30,7 +30,7 @@ let list0 p sep = parser
 
 (* TODO : change when you extend the language *)
 let rec program = parser
-                | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> e
+                | [< e = bloc; _ = Stream.empty ?? "unexpected input at the end" >] -> Bloc e
 
 and expression = parser
                    | [< e1 = factor; e = expression_aux e1 >] -> e
@@ -84,7 +84,7 @@ and ifelse_cond = function
     | e,b1,(true,b2) -> Instr(IfElseInstruction(e,b1,b2))
 
 and decl = parser
-         | [< 'IDENT id ; tl = decl >] -> id::tl
+         | [< 'COM; 'IDENT id ; tl = decl >] -> id::tl
          | [< >] -> []
 
 and bloc = parser
