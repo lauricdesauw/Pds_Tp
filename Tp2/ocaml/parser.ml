@@ -67,15 +67,27 @@ and comma = parser
 
 and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
-                | [<'IF_KW; e = expression; 'THEN_KW; b1 = bloc; 'ELSE_KW; b2 = bloc>] -> Instr(IfElseInstruction(e,b1,b2))
-                | [<'IF_KW; e = expression; 'THEN_KW; b = bloc>] -> Instr(IfInstruction(e,b))
-                | [< 'INT_KW; 'IDENT id; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
+                | [<'IF_KW; e = expression; 'THEN_KW; b1 = ifbloc; c = elsebloc>]
+                  -> ifelse_cond (e,b1,c)
+                | [< 'INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+
+and ifbloc = parser
+    | [<i = instruction>] -> ([],[i] : bloc)
+    | [<'LB; b = bloc; 'RB >] -> b
+
+and elsebloc = parser
+    | [< 'ELSE_KW; b = ifbloc >] -> true,b
+    | [<>] -> false,([],[] : bloc)
+
+and ifelse_cond = function
+    | e,b1,(false,_)  -> Instr(IfInstruction(e,b1))
+    | e,b1,(true,b2) -> Instr(IfElseInstruction(e,b1,b2))
 
 and decl = parser
          | [< 'COM; 'IDENT id ; tl = decl >] -> id::tl
          | [< >] -> []
 
-and bloc = parser 
+and bloc = parser
 | [< c = bloc_aux >] -> split_bloc c
 
 and split_bloc = function
