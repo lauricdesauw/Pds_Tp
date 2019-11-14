@@ -1,5 +1,6 @@
 open ASD
-
+open List
+    
 (* main function. return only a string *)
 
 let rec prettyprint_expr e =
@@ -15,11 +16,19 @@ and prettyprint_instr i =
     | AffectInstruction(name,e) -> name ^ " := " ^ (prettyprint_expr e)
     | IfInstruction(e,b) -> "IF " ^ (prettyprint_expr e) ^ " THEN \n" ^ (prettyprint_bloc b)
     | IfElseInstruction(e,b1,b2) -> "IF " ^ (prettyprint_expr e) ^ " THEN :\n" ^ (prettyprint_bloc b1) ^ " \n ELSE :\n" ^ (prettyprint_bloc b2)
+    | DeclInstruction (t, e) -> let s = type_string t in s ^ prettyprint_decl_list e ^ "\n"
+
+and type_string t =
+  match t with
+  | Type_Int -> "INT "
+
+and prettyprint_decl_list e = List.fold_left (fun x y -> x ^ y) "" e
     
 and prettyprint_bloc c =
-    match c with
-    | t::q -> prettyprint t ^ prettyprint_bloc q
-    | [] -> " "
+  match c with
+  | t::q, l2 -> prettyprint t ^ prettyprint_bloc (q,l2)
+  | [], t::q -> prettyprint t ^ prettyprint_bloc ([],q)
+  | [], [] -> " "
 
 and prettyprint ast =
   match ast with
