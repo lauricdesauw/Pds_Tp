@@ -26,7 +26,7 @@ and prettyprint_decl_list e = List.fold_left (fun x y -> x ^ y) "" e
     
 and prettyprint_bloc c =
   match c with
-  | t::q, l2 -> prettyprint t ^ prettyprint_bloc (q,l2)
+  | t::q, l2 -> prettyprint_instr t ^ prettyprint_bloc (q,l2)
   | [], t::q -> prettyprint t ^ prettyprint_bloc ([],q)
   | [], [] -> " "
 

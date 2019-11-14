@@ -72,10 +72,11 @@ and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir =
     | [] -> empty_ir
     | t::q -> (ir_of_ast t symT) @@ (ir_of_program q symT) 
 
+and curryfied_ir_of_instr symT instr = ir_of_instruction instr,symT
+
 and ir_of_bloc : bloc*symbol_table -> llvm_ir* llvm_value = function
   | (instr_l,codeObj_list ), symT ->
-     let foobar = function instr -> ir_of_instruction instr,symT in 
-     let ir_list = List.map foobar instr_l  in
+     let ir_list = List.map (curryfied_ir_of_instr symT) instr_l  in
      let ir0,v0,sym0 = List.fold_left (@:) empty_ir ir_list in
      (ir0 @: (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
 
