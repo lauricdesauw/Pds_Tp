@@ -28,9 +28,11 @@ and llvm_type_of_asd_typ : typ -> llvm_type = function
 and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = function
     | IntegerExpression i, symT ->
             empty_ir, LLVM_i32 i
-    (*| VarExpression(name), symT ->
-            if  lookup  symT name == None then else (raise Undeclared_variable) 
-     *)
+    | VarExpression(name), symT ->
+       if  lookup  symT name == None
+       then empty_ir,LLVM_var name
+       else (raise Undeclared_variable) 
+    
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
             let ir2, v2 = ir_of_expression (e2, symT) in
