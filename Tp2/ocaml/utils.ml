@@ -36,3 +36,15 @@ let string_transform str =
   in let r = aux str 0 0
   in (fst r, 1 + (String.length str) - (snd r))
   (*         + 1 for \00             - 1 by \n because each ('\' '\n') is transformed into one char *)
+
+exception Undeclared_variable
+
+
+
+
+
+
+
+
+
+

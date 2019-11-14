@@ -10,7 +10,7 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     let ir, v =
         match prog with 
     |Expr(exp) ->  ir_of_expression (exp, symT) 
-    |Instr (inst) -> ir_of_instruction (inst, symT)
+    |Instr (inst) -> let tmp_ir, tmp_v, _ = (ir_of_instruction (inst, symT)) in tmp_ir,tmp_v
     |Bloc(c) -> ir_of_bloc(c,symT) 
     in 
     (* adds the return instruction *)
@@ -28,6 +28,9 @@ and llvm_type_of_asd_typ : typ -> llvm_type = function
 and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = function
     | IntegerExpression i, symT ->
             empty_ir, LLVM_i32 i
+    (*| VarExpression(name), symT ->
+            if  lookup  symT name == None then else (raise Undeclared_variable) 
+     *)
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
             let ir2, v2 = ir_of_expression (e2, symT) in
@@ -53,13 +56,15 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
             let ir = ir1 @@ ir2 @: llvm_div ~res_var:x ~res_type:LLVM_type_i32 ~left:v1 ~right:v2 in
             ir, LLVM_var x
 
-and ir_of_instruction : instruction*symbol_table -> llvm_ir * llvm_value = function
+and ir_of_instruction : instruction*symbol_table -> llvm_ir * llvm_value*symbol_table = function
     | AffectInstruction(name,e), symT -> 
             let ir0,v = ir_of_expression (e,symT) in 
             let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
-            ir,LLVM_var name
+            ir,LLVM_var name,symT
             (* TODO: complete with new cases and functions when you extend your language *)
-
+    
+    | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var typ), LLVM_i32 0,(add_list typ l_var symT)
+                   
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir
@@ -68,3 +73,10 @@ and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir =
 and ir_of_bloc : bloc*symbol_table -> llvm_ir* llvm_value = function
     | l, symT -> 
             (ir_of_program l symT),( LLVM_i32 0)
+
+
+
+
+
+
+

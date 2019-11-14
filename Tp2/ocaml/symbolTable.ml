@@ -35,6 +35,83 @@ let lookup tab id =
   in assoc id tab
 
 let add tab sym = sym :: tab
-
+                
+let rec add_list typ sym_l  tab =
+  match sym_l with
+  | [] -> tab
+  | sym::sym_l' -> VariableSymbol(typ,sym)::(add_list typ sym_l' tab)
+                 
 (* Note : obviously not symmetric *)
 let merge = (@)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

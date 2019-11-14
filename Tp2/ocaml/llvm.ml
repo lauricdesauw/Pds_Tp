@@ -81,7 +81,13 @@ and string_of_instr_seq = function
 
 and string_of_instr i = i
 
-
+let rec gen_ir_decl l_var typ =
+  match l_var with
+  | [] -> empty_ir
+  | symb::tab ->
+     let ir0 = (gen_ir_decl  tab typ) in
+     ir0 @: "%" ^ symb ^ " = alloca " ^  string_of_type typ ^ "\n"          
+    
 (* functions for the creation of various instructions *)
 
 let llvm_add ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) ~(right : llvm_value) : llvm_instr =
@@ -97,7 +103,10 @@ let llvm_div ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) 
   string_of_var res_var ^ " = div " ^ string_of_type res_type ^ " " ^ string_of_value left ^ ", " ^ string_of_value right ^ "\n"
 
 let llvm_affect ~(res_var : llvm_var) ~(res_type : llvm_type) ~(value : llvm_value) : llvm_instr =
- "%" ^ string_of_var res_var ^ " = " ^ string_of_type res_type ^ string_of_value value ^ "\n"
+ "store " ^ string_of_type res_type ^ string_of_value value ^ ", " ^ string_of_type res_type ^ "* %" ^ string_of_var res_var ^ "\n"
+
+let llvm_decl ~(res_var : llvm_var) ~(res_type : llvm_type) : llvm_instr =
+ "%" ^ string_of_var res_var ^ " = alloca " ^ string_of_type res_type ^ "\n"
 
 let llvm_return ~(ret_type : llvm_type) ~(ret_value : llvm_value) : llvm_instr =
   "ret " ^ string_of_type ret_type ^ " " ^ string_of_value ret_value ^ "\n"
@@ -108,3 +117,17 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
   }
 
 (* TODO: complete with other LLVM instructions *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
