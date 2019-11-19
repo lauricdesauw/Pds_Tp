@@ -92,6 +92,7 @@ and proj_third_elem tripl =
 
 and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
   | (instr_l,codeObj_list ), symT ->
+
      let instr_list = List.map (map_aux []) instr_l  in
      let tmp_list = List.map (ir_of_instruction) instr_list in
 
@@ -102,41 +103,6 @@ and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
      let sym0 = (List.fold_left (@) [] tmp_sym_list) @  symT in 
 
      (ir0 @@ (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

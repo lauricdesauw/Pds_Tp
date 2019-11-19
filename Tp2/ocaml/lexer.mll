@@ -56,6 +56,14 @@ rule tokenize = parse
       { THEN_KW       :: tokenize lexbuf }
   | "ELSE"
       { ELSE_KW       :: tokenize lexbuf }
+  | "FI"
+      { FI_KW::tokenize lexbuf }
+  | "WHILE"
+      { WHILE_KW::tokenize lexbuf }
+  | "DO"
+      { DO_KW::tokenize lexbuf }
+  | "DONE"
+      { DONE_KW::tokenize lexbuf }
 
   (* TODO : other keywords *)
 

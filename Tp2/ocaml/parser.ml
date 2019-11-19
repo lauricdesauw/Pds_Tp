@@ -67,21 +67,19 @@ and comma = parser
 
 and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
-                | [<'IF_KW; e = expression; 'THEN_KW; b1 = ifbloc; c = elsebloc>]
-                  -> ifelse_cond (e,b1,c)
+                | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
+                  -> Instr(IfElseInstruction(cond,b_if,b_else))
                 | [< 'INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+                | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
+                  -> Instr(WhileInstruction(cond,b))
 
-and ifbloc = parser
+and if_while_bloc = parser
     | [<i = instruction>] -> ([],[i] : bloc)
     | [<'LB; b = bloc; 'RB >] -> b
 
 and elsebloc = parser
-    | [< 'ELSE_KW; b = ifbloc >] -> true,b
-    | [<>] -> false,([],[] : bloc)
-
-and ifelse_cond = function
-    | e,b1,(false,_)  -> Instr(IfInstruction(e,b1))
-    | e,b1,(true,b2) -> Instr(IfElseInstruction(e,b1,b2))
+    | [< 'ELSE_KW; b = if_while_bloc >] -> b
+    | [<>] -> ([],[] : bloc)
 
 and decl = parser
          | [< 'COM; 'IDENT id ; tl = decl >] -> id::tl
