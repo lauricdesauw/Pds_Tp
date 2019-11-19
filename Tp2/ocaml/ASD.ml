@@ -16,8 +16,8 @@ type expression =
 type instruction =
   | AffectInstruction of string * expression
   | DeclInstruction of typ * (string list)
-  | IfInstruction of expression * bloc
   | IfElseInstruction of expression * bloc * bloc
+  | WhileInstruction of expression * bloc
 
 and codeObj = Expr of expression | Instr of instruction | Bloc of bloc
 

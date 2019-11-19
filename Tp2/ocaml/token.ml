@@ -27,4 +27,4 @@ type token =
   | FI_KW
   | WHILE_KW
   | DO_KW
-  | OD_KW
+  | DONE_KW
