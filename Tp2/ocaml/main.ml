@@ -14,7 +14,7 @@ let _ =
     (*print_endline (Prettyprinter.prettyprint ast);*)
 
     (* Print LLVM IR *)
-    let ir = Codegen.ir_of_ast ast [] in
+    let ir = Llvm.llvm_define_main (Codegen.ir_of_ast ast []) in
     print_endline (Llvm.string_of_ir ir) 
 
   with

@@ -1,12 +1,12 @@
 INT a,b,c
-a:=(2+5)*2
-IF a-5 THEN
-b:=3
-ELSE
-b:=7
-FI
-IF 0 THEN
-c:=1
-ELSE
-c:=0
-FI
+//a:=(2+5)*2
+//IF a-5 THEN
+//b:=3
+//ELSE
+//b:=7
+//FI
+//IF 0 THEN
+//c:=1
+//ELSE
+//c:=0
+//FI

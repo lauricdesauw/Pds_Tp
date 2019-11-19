@@ -14,9 +14,6 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     |Bloc(c) -> ir_of_bloc(c,symT) 
     in 
     (* adds the return instruction *)
-    let ir = ir @: llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v in
-    (* We create the function main *)
-    let ir = llvm_define_main ir in
     ir
 
     (* translation from VSL+ types to LLVM types *)

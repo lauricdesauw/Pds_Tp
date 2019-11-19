@@ -103,7 +103,7 @@ let llvm_div ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) 
   string_of_var res_var ^ " = div " ^ string_of_type res_type ^ " " ^ string_of_value left ^ ", " ^ string_of_value right ^ "\n"
 
 let llvm_affect ~(res_var : llvm_var) ~(res_type : llvm_type) ~(value : llvm_value) : llvm_instr =
- "store " ^ string_of_type res_type ^ string_of_value value ^ ", " ^ string_of_type res_type ^ "* %" ^ string_of_var res_var ^ "\n"
+ "store " ^ string_of_type res_type ^ " " ^ string_of_value value ^ ", " ^ string_of_type res_type ^ "* %" ^ string_of_var res_var ^ "\n"
 
 let llvm_decl ~(res_var : llvm_var) ~(res_type : llvm_type) : llvm_instr =
  "%" ^ string_of_var res_var ^ " = alloca " ^ string_of_type res_type ^ "\n"
@@ -113,7 +113,7 @@ let llvm_return ~(ret_type : llvm_type) ~(ret_value : llvm_value) : llvm_instr =
 (* defining the 'main' function with ir.body as function body *)
 let llvm_define_main (ir : llvm_ir) : llvm_ir =
   { header = ir.header;
-    body = Atom ("define i32 @main() {\n" ^ string_of_instr_seq ir.body ^ "}\n");
+    body = Atom ("define i32 @main() {\n" ^ string_of_instr_seq ir.body ^ (llvm_return  LLVM_type_i32 (LLVM_i32 0)) ^ "}\n");
   }
 
 let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(id : string) =

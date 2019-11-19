@@ -64,8 +64,10 @@ rule tokenize = parse
       { DO_KW::tokenize lexbuf }
   | "DONE"
       { DONE_KW::tokenize lexbuf }
-
-  (* TODO : other keywords *)
+  | "INT"
+      { INT_KW::tokenize lexbuf }
+  | ","
+      { COM::tokenize lexbuf }
 
   (* other tokens (no conflict with keywords in VSL) *)
   | letter (letter | digit)* as lxm
