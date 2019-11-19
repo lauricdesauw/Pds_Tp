@@ -60,25 +60,79 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
 
 and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * symbol_table = function
     | AffectInstruction(name,e), symT -> 
-            let ir0,v = ir_of_expression (e,symT) in 
-            let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
-            ir,(LLVM_var name),symT
-            (* TODO: complete with new cases and functions when you extend your language *)
+       let ir0,v = ir_of_expression (e,symT) in 
+       let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+       ir,(LLVM_var name),symT
+       
     
     | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
-                   
+
+    | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
+       let ir_if,v_if = ir_of_expression (cond,symT) in
+       let ir_then,v_then = ir_of_bloc (then_bloc, symT) in
+       let ir_else,v_else = ir_of_bloc (else_bloc, symT) in
+       let id = new_labels_id () in 
+       let ir = llvm_if_then_else ~ir_cond:ir_if ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
+       ir, (LLVM_i32 0),symT
+       
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir
     | t::q -> (ir_of_ast t symT) @@ (ir_of_program q symT) 
 
-and curryfied_ir_of_instr symT instr = ir_of_instruction instr,symT
+and map_aux symT instr = instr,symT
 
-and ir_of_bloc : bloc*symbol_table -> llvm_ir* llvm_value = function
+and proj_first_elem tripl =
+  match tripl with
+  | ir, _, _  -> ir 
+
+and proj_third_elem tripl =
+  match tripl with
+  | _, _, sym  -> sym
+
+and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
   | (instr_l,codeObj_list ), symT ->
-     let ir_list = List.map (curryfied_ir_of_instr symT) instr_l  in
-     let ir0,v0,sym0 = List.fold_left (@:) empty_ir ir_list in
-     (ir0 @: (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
+     let instr_list = List.map (map_aux []) instr_l  in
+     let tmp_list = List.map (ir_of_instruction) instr_list in
+
+     let ir_list = List.map (proj_first_elem) tmp_list in 
+     let ir0 = List.fold_left (@@) empty_ir ir_list in
+
+     let tmp_sym_list = List.map (proj_third_elem) tmp_list in
+     let sym0 = (List.fold_left (@) [] tmp_sym_list) @  symT in 
+
+     (ir0 @@ (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -14,7 +14,6 @@ let rec prettyprint_expr e =
 and prettyprint_instr i =
     match i with
     | AffectInstruction(name,e) -> name ^ " := " ^ (prettyprint_expr e)
-    | IfInstruction(e,b) -> "IF " ^ (prettyprint_expr e) ^ " THEN \n" ^ (prettyprint_bloc b)
     | IfElseInstruction(e,b1,b2) -> "IF " ^ (prettyprint_expr e) ^ " THEN :\n" ^ (prettyprint_bloc b1) ^ " \n ELSE :\n" ^ (prettyprint_bloc b2)
     | DeclInstruction (t, e) -> let s = type_string t in s ^ prettyprint_decl_list e ^ "\n"
 

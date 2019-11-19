@@ -116,7 +116,21 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
     body = Atom ("define i32 @main() {\n" ^ string_of_instr_seq ir.body ^ "}\n");
   }
 
-(* TODO: complete with other LLVM instructions *)
+let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(id : string) =
+  let cond_instr  = ir_cond @: "br i1 " ^ string_of_value if_value ^ ", label %then" ^ id ^ ", label %else" ^ id ^ " \n" in 
+  let then_instr = (cond_instr @: "then"  ^ id ^ " : \n") @@ ir_then @: "br label %fi" ^ id ^ "\n" in
+  let else_instr = (then_instr @:  "else" ^ id ^ " : \n") @@  ir_else @: "br label %fi" ^id ^ "\n" in
+  else_instr @: "fi" ^ id ^ " :\n" 
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,12 +1,18 @@
 let tmp = ref 0
 let lab = ref 0
 let glob = ref 0
-
+let id = ref 0
+       
 (* generate a new unique local identifier (starting with %) *)
 let newtmp: unit -> string = function () ->
   tmp := succ !tmp;
   "%tmp" ^ (string_of_int !tmp)
 
+(* generate new label for the if then else instruction *) 
+let new_labels_id: unit -> string = function () ->
+  id := succ !id;
+  (string_of_int !id)
+  
 (* generate a new unique label starting with str *)
 let newlab str =
   lab := succ !lab;
