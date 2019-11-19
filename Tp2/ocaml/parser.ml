@@ -69,7 +69,7 @@ and instruction = parser
                 | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
-                | [< 'INT_KW; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id_list))
+                | [< 'INT_KW; 'IDENT id; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
                 | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
                   -> Instr(WhileInstruction(cond,b))
 
