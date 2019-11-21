@@ -79,7 +79,7 @@ and comma = parser
   | [< 'COM >] -> ()
 
 and instruction = parser
-                | [< v = variable; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [< v = variable; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(v,e))
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
                 | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
@@ -95,7 +95,7 @@ and elsebloc = parser
     | [<>] -> ([],[] : bloc)
 
 and decl = parser
-         | [< 'COM; 'IDENT id ; tl = decl >] -> id::tl
+         | [< 'COM; v = variable; tl = decl >] -> v::tl
          | [< >] -> []
 
 and bloc = parser
