@@ -1,3 +1,6 @@
+open ASD
+open Utils
+   
 (* TODO : extend when you extend the language *)
 
 (* This file contains a simple LLVM IR representation *)
@@ -87,9 +90,18 @@ let rec gen_ir_decl l_var typ =
   match l_var with
   | [] -> empty_ir
   | symb::tab ->
-     let ir0 = (gen_ir_decl  tab typ) in
-     ir0 @: "%" ^ symb ^ " = alloca " ^  string_of_type typ ^ "\n"          
-    
+     match symb with
+     |  Var(symb_name) -> 
+         let ir0 = (gen_ir_decl  tab typ) in
+         (empty_ir @: "%" ^ symb_name ^ " = alloca " ^  string_of_type typ ^ "\n") @@ ir0
+     |Tab(symb_name, offset_expr) -> match offset_expr with
+                                     | IntegerExpression(size) ->
+                                        let ir0 = (gen_ir_decl  tab typ) in
+                                        (empty_ir @: "%" ^ symb_name ^ " = alloca " ^  string_of_type (LLVM_type_tab(size)) ^ "\n") @@ ir0
+                                     | _ -> raise Wrong_decl_expr
+                                         
+       
+       
 (* functions for the creation of various instructions *)
 
 let llvm_add ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) ~(right : llvm_value) : llvm_instr =
