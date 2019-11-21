@@ -80,7 +80,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
                         let x = newtmp() in
                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
                         let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
-                        let irf = ir1 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+                        let irf = ir1 @: llvm_affect ~res_var:x ~res_type:LLVM_type_i32 ~value:v in 
                         irf,(LLVM_var x), symT
            )
      )

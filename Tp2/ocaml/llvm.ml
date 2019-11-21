@@ -60,7 +60,7 @@ let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
   | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
                          
-and string_of_var x = x
+and string_of_var x = "%" ^ x
 
 and string_of_value = function
   | LLVM_i32 n -> string_of_int n
@@ -117,7 +117,7 @@ let llvm_div ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) 
   string_of_var res_var ^ " = div " ^ string_of_type res_type ^ " " ^ string_of_value left ^ ", " ^ string_of_value right ^ "\n"
 
 let llvm_affect ~(res_var : llvm_var) ~(res_type : llvm_type) ~(value : llvm_value) : llvm_instr =
- "store " ^ string_of_type res_type ^ " " ^ string_of_value value ^ ", " ^ string_of_type res_type ^ "* %" ^ string_of_var res_var ^ "\n"
+ "store " ^ string_of_type res_type ^ " " ^ string_of_value value ^ ", " ^ string_of_type res_type ^ "* " ^ string_of_var res_var ^ "\n"
 
 let llvm_decl ~(res_var : llvm_var) ~(res_type : llvm_type) : llvm_instr =
  "%" ^ string_of_var res_var ^ " = alloca " ^ string_of_type res_type ^ "\n"
@@ -140,12 +140,12 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_va
   let cond_instr = (empty_ir @: "while" ^ id ^ " :\n") @@ ir_cond @: "br i1 " ^ string_of_value cond_value
                                                                      ^ ", label %do" ^ id ^ ", label %done" ^ id ^ " \n" in 
   let do_instr = (cond_instr @: "do" ^ id ^ " :\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
-  do_instr @:  "done" ^ id ^ "\n" 
+  do_instr @:  "done" ^ id ^ " : \n" 
 
 
 let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
   string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
-    string_of_var tab ^ ", " ^  "i64 0, i64 0" 
+    string_of_var tab ^ ", " ^  "i64 0, i64 0 \n" 
 
 
 
