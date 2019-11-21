@@ -40,7 +40,11 @@ let rec add_list typ sym_l  tab =
   match sym_l with
   | [] -> tab
   | sym::sym_l' -> VariableSymbol(typ,sym)::(add_list typ sym_l' tab)
-                 
+
+let get_type sym =
+  match sym with
+  | VariableSymbol(t,name) -> t
+
 (* Note : obviously not symmetric *)
 let merge = (@)
 

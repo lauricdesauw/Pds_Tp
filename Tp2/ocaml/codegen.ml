@@ -19,17 +19,27 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     (* translation from VSL+ types to LLVM types *)
 and llvm_type_of_asd_typ : typ -> llvm_type = function
     | Type_Int -> LLVM_type_i32
-
+    | Type_tab(size) -> LLVM_type_tab(size)
+                      
     (* all expressions have type LLVM_type_i32 *)
     (* they return code (llvm_ir) and expression result (llvm_value) *)
 and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = function
     | IntegerExpression i, symT ->
             empty_ir, LLVM_i32 i
-    | VarExpression(name), symT ->
-       if  lookup  symT name = None
-       then (raise Undeclared_variable) 
-       else empty_ir,LLVM_var name
-    
+    | VarExpression(var), symT ->
+       (match var with
+       | Var(name) -> if  lookup  symT name = None
+                      then (raise Undeclared_variable) 
+                      else empty_ir,LLVM_var name
+       | Tab(name,offset_expr) ->  (match (lookup  symT name) with
+                                     | None -> (raise Undeclared_variable) 
+                                     | Some r -> let ir0,v0 = ir_of_expression (offset_expr,symT) in
+                                        let x = newtmp() in
+                                        let tab_typ = llvm_type_of_asd_typ (get_type r) in 
+                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
+                                        ir1,LLVM_var x
+                                   )
+       )
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
             let ir2, v2 = ir_of_expression (e2, symT) in
