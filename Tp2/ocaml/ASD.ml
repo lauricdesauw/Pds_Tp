@@ -5,10 +5,6 @@ type ident = string
 type typ =
   | Type_Int
 
-type variables =
-  | Var of string
-  | Tab of string * expression
-
 type expression =
   | AddExpression of expression * expression
   | SubExpression of expression * expression
@@ -16,6 +12,10 @@ type expression =
   | DivExpression of expression * expression
   | IntegerExpression of int
   | VarExpression of variables
+
+and variables =
+  | Var of string
+  | Tab of string * expression
 
 type instruction =
   | AffectInstruction of variables * expression
