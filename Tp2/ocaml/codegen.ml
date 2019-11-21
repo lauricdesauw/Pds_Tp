@@ -25,10 +25,18 @@ and llvm_type_of_asd_typ : typ -> llvm_type = function
 and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = function
     | IntegerExpression i, symT ->
             empty_ir, LLVM_i32 i
-    | VarExpression(name), symT ->
-       if  lookup  symT name = None
-       then (raise Undeclared_variable) 
-       else empty_ir,LLVM_var name
+    | VarExpression(var), symT ->
+       match var with
+       | Var(name) -> if  lookup  symT name = None
+                      then (raise Undeclared_variable) 
+                      else empty_ir,LLVM_var name
+       | Tab(name,offset_expr) ->  match (lookup  symT name) with
+                                     | None -> (raise Undeclared_variable) 
+                                     | Some r -> let ir0,v0 = ir_of_expression (offset_expr,symT) in
+                                        let x = newtmp() in
+                                        let tab_typ = get_type r in 
+                                        let ir1 =ir0 @@ llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
+                                        ir1,LLVM_var x
     
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
