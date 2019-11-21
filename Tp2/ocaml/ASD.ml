@@ -4,7 +4,8 @@ type ident = string
 
 type typ =
   | Type_Int
-
+  | Type_tab of int
+    
 type expression =
   | AddExpression of expression * expression
   | SubExpression of expression * expression

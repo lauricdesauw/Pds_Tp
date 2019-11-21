@@ -5,7 +5,7 @@
 
 type llvm_type =
   | LLVM_type_i32
-
+  | LLVM_type_tab of  int 
 (* TODO: to complete *)
 
 type llvm_var = string
@@ -55,7 +55,8 @@ let (@@) ir1 ir2 = {
 (* actual IR generation *)
 let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
-
+  | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
+                         
 and string_of_var x = x
 
 and string_of_value = function
@@ -133,6 +134,7 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_va
 let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
   string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
     string_of_var tab ^ ", " ^  "i64 0, i64 0" 
+
 
 
 
