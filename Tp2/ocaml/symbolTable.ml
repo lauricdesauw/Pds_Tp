@@ -1,6 +1,7 @@
 open List
 open ASD
-
+open Utils
+   
 (* This file contains the symbol table definition. *)
 (* A symbol table contains a set of ident and the  *)
 (* corresponding symbols.                          *)
@@ -39,8 +40,15 @@ let add tab sym = sym :: tab
 let rec add_list typ sym_l  tab =
   match sym_l with
   | [] -> tab
-  | sym::sym_l' -> VariableSymbol(typ,sym)::(add_list typ sym_l' tab)
-
+  | sym::sym_l' -> match sym with
+                   | Var(name) -> 
+                      VariableSymbol(typ,name)::(add_list typ sym_l' tab)
+                   |Tab(name,offset_expr) -> match offset_expr with
+                                             | IntegerExpression(size) ->
+                                                VariableSymbol((Type_tab(size)),name)::(add_list typ sym_l' tab)
+                                             | _ -> raise Wrong_decl_expr
+                                          
+                     
 let get_type sym =
   match sym with
   | VariableSymbol(t,name) -> t

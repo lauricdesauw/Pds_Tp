@@ -66,13 +66,26 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
             ir, LLVM_var x
 
 and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * symbol_table = function
-    | AffectInstruction(name,e), symT -> 
-       let ir0,v = ir_of_expression (e,symT) in 
-       let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
-       ir,(LLVM_var name),symT
-       
-    
-    | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
+  | AffectInstruction(var,e), symT ->
+     (  match var with
+        | Var(name) -> let ir0,v = ir_of_expression (e,symT) in 
+                       let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+                       ir,(LLVM_var name),symT
+                       
+        | Tab(name,offset_expr) ->
+           (match (lookup  symT name) with
+            | None -> (raise Undeclared_variable) 
+            | Some r -> let ir,v = ir_of_expression (e,symT) in 
+                        let ir0,v0 = ir_of_expression (offset_expr,symT) in
+                        let x = newtmp() in
+                        let tab_typ = llvm_type_of_asd_typ (get_type r) in 
+                        let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
+                        let irf = ir1 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+                        irf,(LLVM_var x), symT
+           )
+     )
+
+  | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
 
     | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
        let ir_if,v_if = ir_of_expression (cond,symT) in
