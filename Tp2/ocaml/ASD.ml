@@ -5,17 +5,21 @@ type ident = string
 type typ =
   | Type_Int
 
+type variables =
+  | Var of string
+  | Tab of string * expression
+
 type expression =
   | AddExpression of expression * expression
   | SubExpression of expression * expression
   | MulExpression of expression * expression
   | DivExpression of expression * expression
   | IntegerExpression of int
-  | VarExpression of string
+  | VarExpression of variables
 
 type instruction =
-  | AffectInstruction of string * expression
-  | DeclInstruction of typ * (string list)
+  | AffectInstruction of variables * expression
+  | DeclInstruction of typ * (variables list)
   | IfElseInstruction of expression * bloc * bloc
   | WhileInstruction of expression * bloc
 

@@ -68,6 +68,10 @@ rule tokenize = parse
       { INT_KW::tokenize lexbuf }
   | ","
       { COM::tokenize lexbuf }
+  | "["
+      { LSQ::tokenize lexbuf }
+  | "]"
+    { RSQ::tokenize lexbuf }
 
   (* other tokens (no conflict with keywords in VSL) *)
   | letter (letter | digit)* as lxm
