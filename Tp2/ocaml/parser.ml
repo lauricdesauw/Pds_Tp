@@ -58,18 +58,31 @@ and factor_aux e1 = parser
 
 and primary = parser
             | [< 'INTEGER x >] -> IntegerExpression x
-            | [< 'IDENT id >] -> VarExpression id
+            | [< v = variable >] -> VarExpression v
             | [< 'LP ; e = expression >] -> e
   (* TODO : that's all? *)
+
+and variable = parser
+             | [< 'IDENT id; e = tab >] -> to_variables id e
+
+and tab = parser
+        | [< 'LSQ; e = expression; 'RSQ >] -> e
+        | [< >] -> IntegerExpression (-1)
+
+and to_variables id = function
+  | IntegerExpression n when n = -1 -> Var id
+  | IntegerExpression n -> Tab (id, IntegerExpression n)
+  | e -> Tab (id, e)
+
 
 and comma = parser
   | [< 'COM >] -> ()
 
 and instruction = parser
-                | [<'IDENT id; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
+                | [< v = variable; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(id,e))
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
-                | [< 'INT_KW; 'IDENT id; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
+                | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
                 | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
                   -> Instr(WhileInstruction(cond,b))
 
