@@ -5,6 +5,7 @@
 
 type llvm_type =
   | LLVM_type_i32
+
 (* TODO: to complete *)
 
 type llvm_var = string
@@ -123,10 +124,15 @@ let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm
   else_instr @: "fi" ^ id ^ " :\n" 
 
 let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_value) ~(id : string) =
-  let cond_instr = (empty_ir @: "while" ^ id ^ " :\n") @@ ir_cond @: "br i1 " ^ string_of_value cond_value ^ ", label %do" ^ id ^ ", label %done" ^ id ^ " \n" in 
+  let cond_instr = (empty_ir @: "while" ^ id ^ " :\n") @@ ir_cond @: "br i1 " ^ string_of_value cond_value
+                                                                     ^ ", label %do" ^ id ^ ", label %done" ^ id ^ " \n" in 
   let do_instr = (cond_instr @: "do" ^ id ^ " :\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
   do_instr @:  "done" ^ id ^ "\n" 
 
+
+let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
+  string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
+    string_of_var tab ^ ", " ^  "i64 0, i64 0" 
 
 
 
