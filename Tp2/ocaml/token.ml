@@ -6,8 +6,8 @@ type token =
   | RP
   | LB
   | RB
-  | LC
-  | RC
+  | LSQ
+  | RSQ
   | COM
   | PLUS
   | MINUS
