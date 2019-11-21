@@ -122,9 +122,10 @@ let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm
   let else_instr = (then_instr @:  "else" ^ id ^ " : \n") @@  ir_else @: "br label %fi" ^id ^ "\n" in
   else_instr @: "fi" ^ id ^ " :\n" 
 
-
-
-
+let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_value) ~(id : string) =
+  let cond_instr = (empty_ir @: "while" ^ id ^ " :\n") @@ ir_cond @: "br i1 " ^ string_of_value cond_value ^ ", label %do" ^ id ^ ", label %done" ^ id ^ " \n" in 
+  let do_instr = (cond_instr @: "do" ^ id ^ " :\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
+  do_instr @:  "done" ^ id ^ "\n" 
 
 
 

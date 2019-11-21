@@ -71,7 +71,13 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
        let id = new_labels_id () in 
        let ir = llvm_if_then_else ~ir_cond:ir_if ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
        ir, (LLVM_i32 0),symT
-       
+    |WhileInstruction(cond,body), symT ->
+      let ir_cond, v_cond = ir_of_expression(cond,symT) in 
+      let ir_body, v_body = ir_of_bloc(body,symT) in
+      let id = new_labels_id () in 
+      let ir =  llvm_while ~ir_cond:ir_cond ~ir_body:ir_body ~cond_value:v_cond ~id:id in
+      ir, (LLVM_i32 0),symT
+      
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir

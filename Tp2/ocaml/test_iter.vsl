@@ -1,10 +1,6 @@
 INT a,b,c
 a:=(2+5)*2
-IF a-5 THEN
+WHILE a-5
+DO 
 b:=3
-ELSE
-b:=7
-FI
-IF 0 THEN
-c:=1
-FI
+DONE
