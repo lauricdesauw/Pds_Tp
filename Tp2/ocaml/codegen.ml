@@ -114,7 +114,8 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      let ir,v = ir_of_expression(expr,symT) in 
      (ir @@ llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v),(LLVM_i32 0), symT
 
-(*  | ProtoInstruction(name, ret_typ, param), symT -> *)
+  | ProtoInstruction(name, ret_typ, param), symT ->
+     empty_ir,LLVM_i32 0, (ret_type,name)::symT
      
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
