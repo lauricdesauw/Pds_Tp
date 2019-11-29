@@ -70,7 +70,7 @@ and primary = parser
 and variable = parser
              | [< 'IDENT id; e = tab_or_func >] -> to_variables id e
 
-and tab = parser
+and tab_or_func = parser
         | [< 'LSQ; e = expression; 'RSQ >] -> Wrap_Expression e
         | [< 'LP; e = expression; q = arguments; 'RP >] -> Wrap_EList (e::q)
         | [< >] -> Wrap_None
