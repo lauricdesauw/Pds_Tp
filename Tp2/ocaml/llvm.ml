@@ -130,6 +130,15 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
     body = Atom ("define i32 @main() {\n" ^ string_of_instr_seq ir.body ^ (llvm_return  LLVM_type_i32 (LLVM_i32 0)) ^ "}\n");
   }
 
+let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
+  string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
+    string_of_var tab ^ ", " ^  "i64 0, i64 0 \n"
+
+let rec concat_in_string l1 l2 =
+  match l1,l2 with
+  | [], [] -> ""
+  | t1::q1 , t2::q2 -> string_of_type t1 ^ string_of_var t2 ^ (concat_in_string q1 q2)
+
 let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(id : string) =
   let cond_instr  = ir_cond @: "br i1 " ^ string_of_value if_value ^ ", label %then" ^ id ^ ", label %else" ^ id ^ " \n" in 
   let then_instr = (cond_instr @: "then"  ^ id ^ " : \n") @@ ir_then @: "br label %fi" ^ id ^ "\n" in
@@ -142,12 +151,13 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_va
   let do_instr = (cond_instr @: "do" ^ id ^ " :\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
   do_instr @:  "done" ^ id ^ " : \n" 
 
-
-let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
-  string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
-    string_of_var tab ^ ", " ^  "i64 0, i64 0 \n" 
-
-
+let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llvm_ir)
+      ~(param_types : llvm_type list) ~(param : llvm_var list) =
+  let param_string = concat_in_string param_types param in 
+  let head = empty_ir @: ("define " ^ string_of_type ret_type ^ string_of_var funct_name ^ "(" ^ param_string ^ ") {\n ") in
+  let queue = empty_ir @: "\n}\n" in
+  head @@ body_ir @@ queue 
+                         
 
 
 
