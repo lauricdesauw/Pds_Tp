@@ -4,6 +4,7 @@ type ident = string
 
 type typ =
   | Type_Int
+  | Type_void
   | Type_tab of int
     
 type expression =
@@ -13,6 +14,7 @@ type expression =
   | DivExpression of expression * expression
   | IntegerExpression of int
   | VarExpression of variables
+  | FuncExpression of string * (expression list)
 
 and variables =
   | Var of string
@@ -23,8 +25,10 @@ type instruction =
   | DeclInstruction of typ * (variables list)
   | IfElseInstruction of expression * bloc * bloc
   | WhileInstruction of expression * bloc
+  | ReturnInstruction of expression
+  | ProtoInstruction of string * typ * (variables list)
 
-and codeObj = Expr of expression | Instr of instruction | Bloc of bloc
+and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list)
 
 and bloc = (instruction list) * (codeObj list)
 
