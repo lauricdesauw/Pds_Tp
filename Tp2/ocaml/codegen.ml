@@ -40,6 +40,14 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                         ir1,LLVM_var x
                                    )
        )
+    | FuncExpression(name, param), symT -> (match lookup symT name with
+                                           | None (raise Undeclared variable)
+                                             | Some r ->
+                                              let x = newtpm() in
+                                              let ret_typ = llvm_type_of_asd_typ (get_type r) in 
+                                              (empty_ir @:
+                                                 llvm_call ~ret_type:ret_type ~fun_name:name ~param:param), LLVM_var x
+                                           )
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
             let ir2, v2 = ir_of_expression (e2, symT) in
@@ -87,20 +95,28 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
 
   | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
 
-    | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
-       let ir_if,v_if = ir_of_expression (cond,symT) in
-       let ir_then,v_then = ir_of_bloc (then_bloc, symT) in
-       let ir_else,v_else = ir_of_bloc (else_bloc, symT) in
-       let id = new_labels_id () in 
-       let ir = llvm_if_then_else ~ir_cond:ir_if ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
-       ir, (LLVM_i32 0),symT
-    |WhileInstruction(cond,body), symT ->
-      let ir_cond, v_cond = ir_of_expression(cond,symT) in 
-      let ir_body, v_body = ir_of_bloc(body,symT) in
-      let id = new_labels_id () in 
-      let ir =  llvm_while ~ir_cond:ir_cond ~ir_body:ir_body ~cond_value:v_cond ~id:id in
-      ir, (LLVM_i32 0),symT
-      
+  | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
+     let ir_if,v_if = ir_of_expression (cond,symT) in
+     let ir_then,v_then = ir_of_bloc (then_bloc, symT) in
+     let ir_else,v_else = ir_of_bloc (else_bloc, symT) in
+     let id = new_labels_id () in 
+     let ir = llvm_if_then_else ~ir_cond:ir_if ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
+     ir, (LLVM_i32 0),symT
+
+  |WhileInstruction(cond,body), symT ->
+    let ir_cond, v_cond = ir_of_expression(cond,symT) in 
+    let ir_body, v_body = ir_of_bloc(body,symT) in
+    let id = new_labels_id () in 
+    let ir =  llvm_while ~ir_cond:ir_cond ~ir_body:ir_body ~cond_value:v_cond ~id:id in
+    ir, (LLVM_i32 0),symT
+
+  | ReturnInstruction(expr), symT ->
+     let ir,v = ir_of_expression(expr,symT) in 
+     (ir @@ llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v),(LLVM_i32 0), symT
+
+  | ProtoInstruction(name, ret_typ, param), symT ->
+     empty_ir,LLVM_i32 0, (ret_type,name)::symT
+     
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir
@@ -129,6 +145,12 @@ and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
      let sym0 = (List.fold_left (@) [] tmp_sym_list) @  symT in 
 
      (ir0 @@ (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0)
+
+
+
+
+
+
 
 
 
