@@ -1,6 +1,11 @@
 open ASD
 open Token
 
+type wrapper =
+  | Wrap_None
+  | Wrap_Expression of expression
+  | Wrap_EList of expression list
+
 (* p? *)
 let opt p = parser
   | [< x = p >] -> Some x
@@ -63,17 +68,21 @@ and primary = parser
   (* TODO : that's all? *)
 
 and variable = parser
-             | [< 'IDENT id; e = tab >] -> to_variables id e
+             | [< 'IDENT id; e = tab_or_func >] -> to_variables id e
 
 and tab = parser
-        | [< 'LSQ; e = expression; 'RSQ >] -> e
-        | [< >] -> IntegerExpression (-1)
+        | [< 'LSQ; e = expression; 'RSQ >] -> Wrap_Expression e
+        | [< 'LP; e = expression; q = arguments; 'RP >] -> Wrap_EList (e::q)
+        | [< >] -> Wrap_None
 
 and to_variables id = function
-  | IntegerExpression n when n = -1 -> Var id
-  | IntegerExpression n -> Tab (id, IntegerExpression n)
-  | e -> Tab (id, e)
+  | Wrap_None -> Var id
+  | Wrap_Expression e -> Tab (id, e)
+  | Wrap_EList args -> Func (id, args)
 
+and arguments = parser
+              | [< 'COM; e = expression; q = arguments >] -> e::q
+              | [< >] -> []
 
 and comma = parser
   | [< 'COM >] -> ()

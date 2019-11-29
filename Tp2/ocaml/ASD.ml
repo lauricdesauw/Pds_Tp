@@ -14,12 +14,13 @@ type expression =
   | DivExpression of expression * expression
   | IntegerExpression of int
   | VarExpression of variables
-  | FuncExpression of string * (expression list)
+
 
 and variables =
   | Var of string
   | Tab of string * expression
-
+  | Func of string * (expression list)
+                               
 type instruction =
   | AffectInstruction of variables * expression
   | DeclInstruction of typ * (variables list)
