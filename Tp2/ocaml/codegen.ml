@@ -12,6 +12,10 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     |Expr(exp) ->  ir_of_expression (exp, symT) 
     |Instr (inst) -> let tmp_ir, tmp_v, _ = (ir_of_instruction (inst, symT)) in tmp_ir,tmp_v
     |Bloc(c) -> ir_of_bloc(c,symT) 
+    |Function(name,ret_typ,param, body) ->
+      let body_ir,v0 = ir_of_bloc (body,symT) in 
+      llvm_funct ~ret_type:ret_typ ~funct_name:name ~body_ir:body_ir ~param:param
+      
     in 
     (* adds the return instruction *)
     ir

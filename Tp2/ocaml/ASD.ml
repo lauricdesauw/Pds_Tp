@@ -28,7 +28,7 @@ type instruction =
   | ReturnInstruction of expression
   | ProtoInstruction of string * typ * (variables list)
 
-and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list)
+and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list) * bloc
 
 and bloc = (instruction list) * (codeObj list)
 
