@@ -46,7 +46,7 @@ let string_transform str =
    
 exception Undeclared_variable
 exception Wrong_decl_expr
-
+exception Wrong_type_for_parameter
 
 
 

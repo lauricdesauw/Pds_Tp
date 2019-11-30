@@ -60,7 +60,7 @@ let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
   | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
                          
-and string_of_var x = "%" ^ x
+and string_of_var x = x
 
 and string_of_value = function
   | LLVM_i32 n -> string_of_int n
@@ -125,6 +125,15 @@ let llvm_decl ~(res_var : llvm_var) ~(res_type : llvm_type) : llvm_instr =
 let llvm_return ~(ret_type : llvm_type) ~(ret_value : llvm_value) : llvm_instr =
   "ret " ^ string_of_type ret_type ^ " " ^ string_of_value ret_value ^ "\n"
 
+let rec string_of_param ~(param : llvm_var list) =
+  match param with
+  | [] -> ""
+  | t::[] -> "i32 " ^ string_of_var t 
+  | t::q -> "i32 " ^ string_of_var t ^ "," ^ string_of_param q
+  
+let llvm_call ~(ret_type : llvm_type) ~(fun_name : llvm_var) ~(param : llvm_var list) =
+  "call " ^ string_of_type ret_type ^ " " ^ string_of_var fun_name ^ "(" ^ string_of_param param ^")\n"
+  
 (* defining the 'main' function with ir.body as function body *)
 let llvm_define_main (ir : llvm_ir) : llvm_ir =
   { header = ir.header;
@@ -159,6 +168,7 @@ let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llv
   head @@ body_ir @@ queue 
                          
 
+  
 
 
 

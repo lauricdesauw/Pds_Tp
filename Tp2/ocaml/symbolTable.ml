@@ -52,7 +52,7 @@ let rec add_list typ sym_l  tab =
 let get_type sym =
   match sym with
   | VariableSymbol(t,name) -> t
-
+  | FunctionSymbol(f) -> f.return_type
 (* Note : obviously not symmetric *)
 let merge = (@)
 
