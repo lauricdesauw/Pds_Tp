@@ -167,22 +167,24 @@ let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llv
   let queue = empty_ir @: "\n}\n" in
   head @@ body_ir @@ queue 
 
-let rec str_of_list_print l_val l_typ =
-  match l_val, l_typ with
+let rec str_of_list_print l_var l_typ =
+  match l_var, l_typ with
   | [], _ -> ""
-  | t_v::q_v , t_t::q_t  -> "," ^ string_of_type t_t ^ string_of_val t_v ^ str_of_list_print q_v q_t
+  | t_v::q_v , t_t::q_t  -> "," ^ string_of_type t_t ^ string_of_var t_v ^ str_of_list_print q_v q_t
 
 let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
   string_of_var var ^ "global [" ^ string_of_int size ^ " x i] c" ^ string_value
                           
-let llvm_print   =
-  let str_v = llvm_get_elem in
-  "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_value l_type ^ ")"
+let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) ~( l_type : llvm_type list) : llvm_instr =
+  let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
+                string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
+    "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var l_type ^ ")"
   
 
-let llvm_read   =
-  let str_v = llvm_get_elem in
-  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ str_of_list_print l_value l_type ^ ")"
+let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) ~( l_type : llvm_type list) : llvm_instr =
+let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
+                string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
+  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ str_of_list_print l_var l_type ^ ")"
 
 
 
