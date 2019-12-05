@@ -33,7 +33,7 @@ type instruction =
   | ReturnInstruction of expression
   | ProtoInstruction of string * typ * (variables list)
   | PrintInstruction of printable list
-  | ReadInstruction of variables
+  | ReadInstruction of variables list
 
 and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list) * bloc
 

@@ -112,7 +112,7 @@ and printables = parser
                | [< p = printable; q = printables_aux >] -> p::q
 
 and printable = parser
-              | [< 'TEXT t >] -> P_Str t
+              | [< 'TEXT t >] -> P_str t
               | [< e = expression >] -> P_expr e
 
 and printables_aux = parser
