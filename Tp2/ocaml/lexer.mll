@@ -78,6 +78,10 @@ rule tokenize = parse
       { FUNC_KW::tokenize lexbuf }
   | "RETURN"
       { RETURN_KW::tokenize lexbuf }
+  | "PRINT"
+      { PRINT_KW::tokenize lexbuf }
+  | "READ"
+      { READ_KW::tokenize lexbuf }
 
   (* other tokens (no conflict with keywords in VSL) *)
   | letter (letter | digit)* as lxm

@@ -20,7 +20,11 @@ and variables =
   | Var of string
   | Tab of string * expression
   | Func of string * (expression list)
-                               
+
+and printable =
+  | P_str of string
+  | P_expr of expression
+
 type instruction =
   | AffectInstruction of variables * expression
   | DeclInstruction of typ * (variables list)
@@ -28,6 +32,8 @@ type instruction =
   | WhileInstruction of expression * bloc
   | ReturnInstruction of expression
   | ProtoInstruction of string * typ * (variables list)
+  | PrintInstruction of printable list
+  | ReadInstruction of variables
 
 and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list) * bloc
 

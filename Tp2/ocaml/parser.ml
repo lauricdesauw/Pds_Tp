@@ -98,7 +98,26 @@ and instruction = parser
                 | [< 'FUNC_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP; 'LB; b = bloc; 'RB >]
                   -> Function (f, t, q, b)
                 | [< 'RETURN_KW; e = expression >] -> Instr (ReturnInstruction e)
+                | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
+                | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
 
+and variables = parser
+              | [< v = variable; q = variables_aux >] -> v::q
+
+and variables_aux = parser
+                  | [< 'COM; v = variable; q = variables_aux >] -> v::q
+                  | [< >] -> []
+
+and printables = parser
+               | [< p = printable; q = printables_aux >] -> p::q
+
+and printable = parser
+              | [< 'TEXT t >] -> P_Str t
+              | [< e = expression >] -> P_expr e
+
+and printables_aux = parser
+                   | [< 'COM; p = printable; q = printables_aux >] -> p::q
+                   | [< >] -> []
 
 and typ = parser
         | [< 'INT_KW >] -> Type_Int
