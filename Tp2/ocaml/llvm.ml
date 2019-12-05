@@ -142,7 +142,7 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
 
 let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
   string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
-    string_of_var tab ^ ", " ^  "i64 0, i64 0 \n"
+    string_of_var tab ^ ", " ^  "i64 0, i64" ^ string_of_value offset^ "\n"
 
 let rec concat_in_string l1 =
   match l1 with
@@ -167,36 +167,22 @@ let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llv
   let queue = empty_ir @: "\n}\n" in
   head @@ body_ir @@ queue 
 
-let rec str_of_list_print l_var l_typ =
-  match l_var, l_typ with
-  | [], _ -> ""
-  | t_v::q_v , t_t::q_t  -> "," ^ string_of_type t_t ^ string_of_var t_v ^ str_of_list_print q_v q_t
-
+let rec str_of_list_print l_var =
+  match l_var with
+  | []-> ""
+  | t_v::q_v -> ", i32* " ^ string_of_var t_v ^ str_of_list_print q_v
+              
 let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
   string_of_var var ^ "global [" ^ string_of_int size ^ " x i] c" ^ string_value
                           
-let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) ~( l_type : llvm_type list) : llvm_instr =
+let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
   let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
-    "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var l_type ^ ")"
+    "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var ^ ")"
   
 
-let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) ~( l_type : llvm_type list) : llvm_instr =
+let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(var_type : llvm_type) ~(var : llvm_var) : llvm_instr =
 let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
-  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ str_of_list_print l_var l_type ^ ")"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ string_of_type var_type ^ string_of_var var ^ ")"
 

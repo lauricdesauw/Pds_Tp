@@ -3,7 +3,8 @@ open Llvm
 open Utils
 open SymbolTable
 open List
-
+open String
+   
 (* main function. returns only a string: the generated code *)
 let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: change 'expression' when you extend the language *)
     (* TODO : change when you extend the language *)
@@ -14,18 +15,22 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     |Bloc(c) -> ir_of_bloc(c,symT) 
     |Function(name,ret_typ,param, body) ->
       let body_ir,v0 = ir_of_bloc (body,symT) in
-      llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var param), v0
+      llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param), v0
     in 
     (* adds the return instruction *)
     ir
 
-and llvm_var_of_asd_var var_l =
+and llvm_var_of_asd_var_l var_l =
   match var_l with
   | [] -> []
   | t::q -> (match t with
-             | Var(name) -> name::(llvm_var_of_asd_var q)
+             | Var(name) -> name::(llvm_var_of_asd_var_l q)
              | _ -> raise Wrong_type_for_parameter
             )
+and llvm_var_of_asd_var var =
+  match var with
+  | Var(name) -> name
+  | _ -> raise Wrong_type_for_parameter
           
     (* translation from VSL+ types to LLVM types *)
 and llvm_type_of_asd_typ : typ -> llvm_type = function
@@ -132,7 +137,45 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
                      state = Declared} in 
 
      empty_ir,LLVM_i32 0, FunctionSymbol(f_symbol)::symT
-     
+
+  |PrintInstruction(to_print_l), symT ->
+    let str_to_print, expr_l = to_llvm_string to_print_l in 
+    let x = newglob "fmt" in
+    let str_type = LLVM_type_tab((String.length(str_to_print))) in 
+    let ir_init,var_l = ir_of_expr_l expr_l symT in 
+    let ir0 = ir_init @^ llvm_string ~var:x ~string_value:str_to_print ~size:(String.length(str_to_print)) in
+    let ir = ir0 @: llvm_print ~str_var:x ~str_type:str_type ~l_var:var_l in
+    ir, LLVM_i32 0, symT
+    
+  | ReadInstruction(st_var), symT -> 
+     let x = newglob "fmt" in
+     let size = 3 in
+     let str_val = "%d\n" in
+     let str_type = LLVM_type_tab(3) in 
+     let ir0 = empty_ir @^ llvm_string ~var:x ~string_value:str_val ~size:size in
+     let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~var:(llvm_var_of_asd_var st_var) in
+     ir, LLVM_i32 0, symT
+    
+and ir_of_expr_l expr_l symT=
+  match expr_l with
+  | [] -> empty_ir,[]
+  | e::expr_l' ->
+     let ir0, v_l = ir_of_expr_l expr_l' symT in
+     let ir,v = (ir_of_expression (e,symT)) in
+     match v with
+     | LLVM_var(var) -> ir @@ ir0, var::v_l
+  
+    
+and to_llvm_string printable_l =
+  match printable_l with
+  | [] -> "",[]
+  | p::printable_l' ->
+     let str_to_print,expr_l = to_llvm_string printable_l' in
+     match p with
+      | P_str(str) -> str ^ str_to_print, expr_l
+      | P_expr(expr) ->
+         "%d" ^  str_to_print, expr::expr_l
+    
 and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir = 
     match l with 
     | [] -> empty_ir
@@ -180,11 +223,3 @@ and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
 
      (ir0 @@ (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0) 
                                                    
-
-
-
-
-
-
-
-
