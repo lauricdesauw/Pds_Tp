@@ -153,7 +153,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      let str_val = "%d\n" in
      let str_type = LLVM_type_tab(3) in 
      let ir0 = empty_ir @^ llvm_string ~var:x ~string_value:str_val ~size:size in
-     let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~var:(llvm_var_of_asd_var st_var) in
+     let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~l_var:(llvm_var_of_asd_var_l st_var) in
      ir, LLVM_i32 0, symT
     
 and ir_of_expr_l expr_l symT=

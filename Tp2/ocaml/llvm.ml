@@ -181,8 +181,8 @@ let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_va
     "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var ^ ")"
   
 
-let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(var_type : llvm_type) ~(var : llvm_var) : llvm_instr =
+let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(var_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
 let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
-  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ string_of_type var_type ^ string_of_var var ^ ")"
+  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ str_of_list_print l_var ^ ")"
 
