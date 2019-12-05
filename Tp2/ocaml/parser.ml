@@ -94,7 +94,43 @@ and instruction = parser
                 | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
                 | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
                   -> Instr(WhileInstruction(cond,b))
+                | [< 'PROTO_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP >] -> Instr (ProtoInstruction (f, t, q))
+                | [< 'FUNC_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP; 'LB; b = bloc; 'RB >]
+                  -> Function (f, t, q, b)
+                | [< 'RETURN_KW; e = expression >] -> Instr (ReturnInstruction e)
+                | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
+                | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
 
+and variables = parser
+              | [< v = variable; q = variables_aux >] -> v::q
+
+and variables_aux = parser
+                  | [< 'COM; v = variable; q = variables_aux >] -> v::q
+                  | [< >] -> []
+
+and printables = parser
+               | [< p = printable; q = printables_aux >] -> p::q
+
+and printable = parser
+              | [< 'TEXT t >] -> P_Str t
+              | [< e = expression >] -> P_expr e
+
+and printables_aux = parser
+                   | [< 'COM; p = printable; q = printables_aux >] -> p::q
+                   | [< >] -> []
+
+and typ = parser
+        | [< 'INT_KW >] -> Type_Int
+        | [< 'VOID_KW >] -> Type_void
+
+and proto_var = parser
+              | [< a = variable; q = proto_var_aux >] -> a::q
+              | [< >] -> []
+
+and proto_var_aux = parser
+                  | [< 'COM; a = variable; q = proto_var_aux >] -> a::q
+                  | [< >] -> []
+                    
 and if_while_bloc = parser
     | [<i = instruction>] -> ([],[i] : bloc)
     | [<'LB; b = bloc; 'RB >] -> b
