@@ -72,7 +72,7 @@ and variable = parser
 
 and tab_or_func = parser
         | [< 'LSQ; e = expression; 'RSQ >] -> Wrap_Expression e
-        | [< 'LP; e = expression; q = arguments; 'RP >] -> Wrap_EList (e::q)
+        | [< 'LP; q = arguments; 'RP >] -> Wrap_EList q
         | [< >] -> Wrap_None
 
 and to_variables id = function
@@ -81,14 +81,28 @@ and to_variables id = function
   | Wrap_EList args -> Func (id, args)
 
 and arguments = parser
+              | [< e = expression; q = arguments_aux >] -> e::q
+              | [< >] -> []
+
+and arguments_aux = parser
               | [< 'COM; e = expression; q = arguments >] -> e::q
               | [< >] -> []
 
 and comma = parser
   | [< 'COM >] -> ()
 
+and assign_or_call = parser
+                   | [< 'ASSIGN; e = expression >] -> Wrap_Expression e
+                   | [< >] -> Wrap_None
+
+and to_instruction v w =
+  match v, w with
+  | (Var id), (Wrap_Expression e) -> AffectInstruction (Var id, e)
+  | (Tab (id, n)), (Wrap_Expression e) -> AffectInstruction (Tab (id, n), e)
+  | (Func (id, args)), Wrap_None -> CallInstruction (id, args)
+
 and instruction = parser
-                | [< v = variable; 'ASSIGN; e = expression; >] -> Instr(AffectInstruction(v,e))
+                | [< v = variable; 'ASSIGN; e = expression >] -> Instr(AffectInstruction (v, e))
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
                 | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
@@ -100,6 +114,7 @@ and instruction = parser
                 | [< 'RETURN_KW; e = expression >] -> Instr (ReturnInstruction e)
                 | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
                 | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
+                | [< 'IDENT f; 'LP; q = arguments; 'RP >] -> Instr (CallInstruction (f, q))
 
 and variables = parser
               | [< v = variable; q = variables_aux >] -> v::q

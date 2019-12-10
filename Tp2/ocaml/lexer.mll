@@ -66,6 +66,8 @@ rule tokenize = parse
       { DONE_KW::tokenize lexbuf }
   | "INT"
       { INT_KW::tokenize lexbuf }
+  | "VOID"
+      { VOID_KW::tokenize lexbuf }
   | ","
       { COM::tokenize lexbuf }
   | "["

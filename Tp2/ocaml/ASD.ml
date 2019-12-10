@@ -34,6 +34,7 @@ type instruction =
   | ProtoInstruction of string * typ * (variables list)
   | PrintInstruction of printable list
   | ReadInstruction of variables list
+  | CallInstruction of string * (expression list)
 
 and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list) * bloc
 
