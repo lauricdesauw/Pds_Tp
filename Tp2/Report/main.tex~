@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{fullpage}
+
+
+\title{BOX Project: Develloper's Report}
+\author{Lauric}
+\date{December 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\section{De Bruijn Graph}
+We have used a De Bruijn Graph to represent the set of $k$\_mer contain in the reads. The DBG is then use in a deep parcour to fill
+the gap. 
+
+\subsection{Generating the DBG}
+First, because a $k$\_mer can exist in two forms, the canonical one and it reverse complement.
+We define the canonical representation as the smallest in lexical order. 
+
+The method to generate the DBG from the reads is quite simple. For each of the reads we consider all the subsequence of size $k$,
+we then took it canonical representation. If the canonical representation is already stored in the dbg then we continue.
+Else we add the canonical representation to the dbg. 
+
+\subsection{Unitig}
+
+On génère les unitigs avec la méthode suivante:
+\begin{itemize}
+\item 
+\item 
+\end{itemize}
+
+
+
+\subsection{Contig}
+
+
+\end{document}
