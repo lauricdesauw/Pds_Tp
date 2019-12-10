@@ -14,10 +14,11 @@
 
 \maketitle
 
-\section{Introduction}
+
 \section{General structure}
 
 A program is seen as a block enriched with a couple of 'instructions', which are either prototypes for functions or functions themselves.
+
 
 \section{Expressions}
 
@@ -33,19 +34,20 @@ The hard parts about expressions were:
 \section{Blocks}
 
 Blocks are seen as two lists: a list of instructions, which must be declarations and a list of \code{codeObj} which can be instructions (other than declarations), control structures such as loops or blocks. \\
-The toughest part about our block implementation is the symbol table handling \TODO
+The toughest part about our block implementation is the symbol table handling. We had to twink a bit our functions such as \emph{ir_of_instruction} to make them return the symbol table. Like that when we have an \emph{DefineInstruction} we can add the new symbol to it and update the symbol table of the current clock. \\
+Because the whole programm is treated as a block, if we declare a function, she can be used everywhere after. 
 
 \section{Control structure}
 
-Those were implemented in a straightforward way. There were no particular difficulties in implementing those.
+Those were implemented in a straightforward way. There were no particular difficulties in implementing those. Thus we can underline that we used the blocks to represent each part of the structure. For example with the if there is a block for the then part and one for the else part. 
 
 \section{Arrays}
 
-\TODO
+Arrays are simply the array of llvm. We had some difficulties to have access to the type of the array, which contain the size of it. So we changed the types in order to stock the size of the array in his type. Like that when we want to use an array, we will check in the symbol table if it exist and by the same way we will have his type. 
 
 \section{Functions}
 
-\TODO
+Functions have a particular place in our code. First their type contain their name but also her return type and a list of parameters. Because parameters can only be integer we don't need to memorize their types. We had some troubles with functions at the end because our way of treating blocks made that the symbol table cannot be change in the second part, but the whole programm is contained in a block's second part. Therefore we distinguished the global block, which contain the programm, and mere block. By doing that we allow \code{ProtoInstruction} and function definition to add the function to the symbol table. 
 
 \section{PRINT and READ}
 
