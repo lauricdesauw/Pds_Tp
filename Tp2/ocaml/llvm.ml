@@ -155,19 +155,19 @@ let rec concat_in_string l1 =
 
 let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(if_var : llvm_var) ~(id : string) =
   let cond_instr  = ir_cond @: string_of_var if_var ^ " = icmp ne i32 " ^ string_of_value if_value ^ ", 0 \nbr i1 " ^ string_of_var if_var ^ ", label %then" ^ id ^ ", label %else" ^ id ^ " \n" in 
-  let then_instr = (cond_instr @: "then"  ^ id ^ " : \n") @@ ir_then @: "br label %fi" ^ id ^ "\n" in
-  let else_instr = (then_instr @:  "else" ^ id ^ " : \n") @@  ir_else @: "br label %fi" ^id ^ "\n" in
-  else_instr @: "fi" ^ id ^ " :\n" 
+  let then_instr = (cond_instr @: "then"  ^ id ^ ":\n") @@ ir_then @: "br label %fi" ^ id ^ "\n" in
+  let else_instr = (then_instr @:  "else" ^ id ^ ":\n") @@  ir_else @: "br label %fi" ^id ^ "\n" in
+  else_instr @: "fi" ^ id ^ ":\n" 
 
 let llvm_load ~(store_var : llvm_var) ~(load_var : llvm_var) ~(load_type : llvm_type) : llvm_instr =
   string_of_var store_var ^ "= load " ^ string_of_type load_type ^ ", " ^ string_of_type load_type ^ "* " ^ string_of_var load_var ^ "\n"
   
 let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_var : llvm_var) ~(cond_value : llvm_value) ~(id : string) =
-  let cond_instr = (empty_ir @:"br label %while" ^ id ^ "\n" ^ "while" ^ id ^ " :\n")
+  let cond_instr = (empty_ir @:"br label %while" ^ id ^ "\n" ^ "while" ^ id ^ ":\n")
                    @@ ir_cond @: string_of_var cond_var ^ " = icmp ne i32 " ^ string_of_value cond_value ^ ", 0 \nbr i1 " ^ string_of_var cond_var
                                                                      ^ ", label %do" ^ id ^ ", label %done" ^ id ^ " \n" in 
-  let do_instr = (cond_instr @: "do" ^ id ^ " :\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
-  do_instr @:  "done" ^ id ^ " : \n" 
+  let do_instr = (cond_instr @: "do" ^ id ^ ":\n") @@ ir_body  @: "br label %while" ^ id ^"\n" in
+  do_instr @:  "done" ^ id ^ ":\n" 
 
 let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llvm_ir) ~(param : llvm_var list) =
   let param_string = concat_in_string param in 
