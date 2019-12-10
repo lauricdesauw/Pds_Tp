@@ -44,7 +44,7 @@ let string_transform str =
   (*         + 1 for \00             - 1 by \n because each ('\' '\n') is transformed into one char *)
    
 exception Undeclared_variable of string 
-exception Undeclared_function 
+exception Undeclared_function of string
 exception Wrong_decl_expr
 exception Wrong_type_for_parameter
 
