@@ -176,7 +176,7 @@ let rec str_of_list_print l_var =
   | t_v::q_v -> ", i32* " ^ string_of_var t_v ^ str_of_list_print q_v
               
 let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
-  string_of_var var ^ "global [" ^ string_of_int size ^ " x i] c" ^ string_value
+  string_of_var var ^ " global [" ^ string_of_int size ^ " x i] c\"" ^ string_value  ^ "\\" ^ "00" ^ "\""
                           
 let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
   let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^

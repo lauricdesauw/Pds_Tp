@@ -157,10 +157,10 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
                                           )
   |PrintInstruction(to_print_l), symT ->
     let str_to_print, expr_l = to_llvm_string to_print_l in 
-    let x = newglob "fmt" in
-    let str_type = LLVM_type_tab((String.length(str_to_print))) in 
+    let x = newglob ".fmt" in
+    let str_type = LLVM_type_tab((String.length(str_to_print) + 1)) in 
     let ir_init,var_l = ir_of_expr_l expr_l symT in 
-    let ir0 = ir_init @^ llvm_string ~var:x ~string_value:str_to_print ~size:(String.length(str_to_print)) in
+    let ir0 = ir_init @^ llvm_string ~var:x ~string_value:str_to_print ~size:(String.length(str_to_print) + 1) in
     let ir = ir0 @: llvm_print ~str_var:x ~str_type:str_type ~l_var:var_l in
     ir, LLVM_i32 0, symT
     
