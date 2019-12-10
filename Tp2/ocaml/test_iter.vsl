@@ -1,3 +1,10 @@
+PROTO INT g(a, b)
+
+FUNC VOID f()
+{
+PRINT "Hello"
+}
+
 FUNC VOID main()
 {
 INT a,b,c
@@ -23,7 +30,4 @@ FI
 }
 }
 
-FUNC VOID f()
-{
-PRINT "Hello"
-}
+FUNC INT g(a, b) RETURN a+b

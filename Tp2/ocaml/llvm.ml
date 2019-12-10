@@ -143,7 +143,7 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
 
 let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
   string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
-    string_of_var tab ^ ", " ^  "i64 0, i64" ^ string_of_value offset^ "\n"
+    string_of_var tab ^ ", " ^  "i64 0, i64 " ^ string_of_value offset^ "\n"
 
 let rec concat_in_string l1 =
   match l1 with
