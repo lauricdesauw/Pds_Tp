@@ -14,7 +14,10 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir = (* TODO: c
     |Instr (inst) -> let tmp_ir, tmp_v, _ = (ir_of_instruction (inst, symT)) in tmp_ir,tmp_v
     |Bloc(c) -> ir_of_bloc(c,symT) 
     |Function(name,ret_typ,param, body) ->
-      let body_ir,v0 = ir_of_bloc (body,(add_var_to_symT param symT)) in
+      let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT;
+                     state = Declared} in 
+
+      let body_ir,v0 = ir_of_bloc (body,FunctionSymbol(f_symbol)::(add_var_to_symT param symT)) in
       llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param), v0
     in 
     ir
