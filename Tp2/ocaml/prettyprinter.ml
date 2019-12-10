@@ -30,7 +30,7 @@ and prettyprint_instr i =
                                         prettyprint_var_list args ^ ")\n"
     | PrintInstruction s -> "PRINT " ^ prettyprint_printable_list s
     | ReadInstruction v -> "READ " ^ prettyprint_var_list v
-    | CallInstruction (id, args) -> id ^ "(" ^ prettyprint_args args
+    | CallInstruction f -> prettyprint_var f
 
 and prettyprint_printable p =
   match p with

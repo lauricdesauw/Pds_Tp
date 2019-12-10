@@ -45,14 +45,13 @@ and expression_aux e1 = parser
                       | [< 'MINUS ; e2 = factor ; e = expression_aux (SubExpression (e1, e2)) >] -> e
                       | [< 'MUL ; e2 = factor ; e = expression_aux (MulExpression (e1, e2)) >] -> e
                       | [< 'DIV ; e2 = factor ; e = expression_aux (DivExpression (e1, e2)) >] -> e
-                      | [< 'RP >] -> e1
                       | [< >] -> e1
 
   (* TODO : that's all? *)
 
 and factor = parser
            | [< e1 = primary; e = factor_aux e1 >] -> e
-           | [< 'LP ; e = expression >] -> e
+           | [< 'LP ; e = expression; 'RP >] -> e
 
 
 and factor_aux e1 = parser
@@ -64,7 +63,7 @@ and factor_aux e1 = parser
 and primary = parser
             | [< 'INTEGER x >] -> IntegerExpression x
             | [< v = variable >] -> VarExpression v
-            | [< 'LP ; e = expression >] -> e
+            | [< 'LP ; e = expression; 'RP >] -> e
   (* TODO : that's all? *)
 
 and variable = parser
@@ -85,36 +84,29 @@ and arguments = parser
               | [< >] -> []
 
 and arguments_aux = parser
-              | [< 'COM; e = expression; q = arguments >] -> e::q
+              | [< 'COM; e = expression; q = arguments_aux >] -> e::q
               | [< >] -> []
 
 and comma = parser
   | [< 'COM >] -> ()
 
-and assign_or_call = parser
-                   | [< 'ASSIGN; e = expression >] -> Wrap_Expression e
-                   | [< >] -> Wrap_None
-
-and to_instruction v w =
-  match v, w with
-  | (Var id), (Wrap_Expression e) -> AffectInstruction (Var id, e)
-  | (Tab (id, n)), (Wrap_Expression e) -> AffectInstruction (Tab (id, n), e)
-  | (Func (id, args)), Wrap_None -> CallInstruction (id, args)
-
+and assign_or_call v = parser
+                     | [< 'ASSIGN; e = expression >] -> AffectInstruction (v, e)
+                     | [< >] -> CallInstruction v
+                     
 and instruction = parser
-                | [< v = variable; 'ASSIGN; e = expression >] -> Instr(AffectInstruction (v, e))
+                | [< v = variable; i = assign_or_call v >] -> Instr i
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
                 | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
                 | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
                   -> Instr(WhileInstruction(cond,b))
                 | [< 'PROTO_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP >] -> Instr (ProtoInstruction (f, t, q))
-                | [< 'FUNC_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP; 'LB; b = bloc; 'RB >]
+                | [< 'FUNC_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP; b = if_while_bloc >]
                   -> Function (f, t, q, b)
                 | [< 'RETURN_KW; e = expression >] -> Instr (ReturnInstruction e)
                 | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
                 | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
-                | [< 'IDENT f; 'LP; q = arguments; 'RP >] -> Instr (CallInstruction (f, q))
 
 and variables = parser
               | [< v = variable; q = variables_aux >] -> v::q
