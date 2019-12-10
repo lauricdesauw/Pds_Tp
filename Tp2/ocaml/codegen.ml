@@ -51,7 +51,10 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
        (match var with
        | Var(name) -> if  lookup  symT name = None
                       then raise (Undeclared_variable(name)) 
-                      else empty_ir,LLVM_var ("%" ^ name)
+                      else
+                        let x = newtmp() in 
+                        let ir =empty_ir @: llvm_load ~store_var:x ~load_var:("%" ^ name) ~load_type:LLVM_type_i32 in 
+                        ir, LLVM_var x
        | Tab(name,offset_expr) ->  (match (lookup  symT name) with
                                      | None ->raise ( Undeclared_variable (name)) 
                                      | Some r -> let ir0,v0 = ir_of_expression (offset_expr,symT) in
@@ -122,15 +125,17 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      let ir_if,v_if = ir_of_expression (cond,symT) in
      let ir_then,v_then = ir_of_bloc (then_bloc, symT) in
      let ir_else,v_else = ir_of_bloc (else_bloc, symT) in
-     let id = new_labels_id () in 
-     let ir = llvm_if_then_else ~ir_cond:ir_if ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
+     let id = new_labels_id () in
+     let x = newtmp() in 
+     let ir = llvm_if_then_else ~ir_cond:ir_if ~if_var:x ~ir_then:ir_then ~ir_else:ir_else ~if_value:v_if ~id:id in
      ir, (LLVM_i32 0),symT
 
   |WhileInstruction(cond,body), symT ->
     let ir_cond, v_cond = ir_of_expression(cond,symT) in 
     let ir_body, v_body = ir_of_bloc(body,symT) in
-    let id = new_labels_id () in 
-    let ir =  llvm_while ~ir_cond:ir_cond ~ir_body:ir_body ~cond_value:v_cond ~id:id in
+    let id = new_labels_id () in
+    let x = newtmp() in 
+    let ir =  llvm_while ~ir_cond:ir_cond ~cond_var:x ~ir_body:ir_body ~cond_value:v_cond ~id:id in
     ir, (LLVM_i32 0),symT
 
   | ReturnInstruction(expr), symT ->
