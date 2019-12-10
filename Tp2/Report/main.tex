@@ -4,6 +4,7 @@
 \usepackage{fullpage}
 
 
+
 \title{A front compiler for VSL+}
 \author{Yan Garito, Lauric Desauw}
 \date{December 2019}
@@ -12,13 +13,31 @@
 
 \maketitle
 
+\section{Introduction}
+\section{General structure}
 \section{Expression}
+
 \section{Bloc}
+
 \section{Control structure}
+\subsection{If Then Else}
+\subsection{While}
+
 \section{Tabular}
+
 \section{Functions}
+
 \section{The PRINT and READ}
 
+\begin{itemize}
+\item[\underline{Print}:] We have defined an instruction \emph{PrintInstruction}
+  wich take an list of \emph{printable} which is a wrapper for string and
+  expression.
+  We generate the string we will have to print by replacing all \emph{int} by the
+  string \emph{``\%d''}. This string is put in the header in order as a global
+  variable. 
+\item[\underline{Read}:]
+\end{itemize}
 
 \section{Pointer and Structure}
 As an extension we choosed to implemente pointer and structure in our language. First the pointer are usefull

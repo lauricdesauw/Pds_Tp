@@ -138,14 +138,17 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
 
      empty_ir,LLVM_i32 0, FunctionSymbol(f_symbol)::symT
 
-  | CallInstruction(name, param), symT -> (match lookup symT name with
-                                           | None -> (raise Undeclared_function)
-                                             | Some r ->
-                                                let x = newtmp() in
-                                                let ir_param, param_var = get_value param in
-                                                let ret_typ = llvm_type_of_asd_typ (get_type r) in 
-                                                (ir_param @:
-                                                   llvm_call ~ret_type:ret_typ ~fun_name:name ~param:param_var), LLVM_var x, symT
+  | CallInstruction(var), symT -> ( match var with
+                                            | Func(name, param) -> 
+                                               (match lookup symT name with
+                                                | None -> (raise Undeclared_function)
+                                                | Some r ->
+                                                   let x = newtmp() in
+                                                   let ir_param, param_var = get_value param in
+                                                   let ret_typ = llvm_type_of_asd_typ (get_type r) in 
+                                                   (ir_param @:
+                                                      llvm_call ~ret_type:ret_typ ~fun_name:name ~param:param_var), LLVM_var x, symT
+                                               )
                                           )
   |PrintInstruction(to_print_l), symT ->
     let str_to_print, expr_l = to_llvm_string to_print_l in 
