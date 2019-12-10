@@ -38,7 +38,7 @@ and llvm_var_of_asd_var var =
 and llvm_type_of_asd_typ : typ -> llvm_type = function
     | Type_Int -> LLVM_type_i32
     | Type_tab(size) -> LLVM_type_tab(size)
-    | Type_void -> LLVM_type_i32
+    | Type_void -> LLVM_type_void
        
     (* all expressions have type LLVM_type_i32 *)
     (* they return code (llvm_ir) and expression result (llvm_value) *)

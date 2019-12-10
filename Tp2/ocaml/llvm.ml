@@ -9,7 +9,7 @@ open Utils
 type llvm_type =
   | LLVM_type_i32
   | LLVM_type_tab of  int
-
+  | LLVM_type_void
 (* TODO: to complete *)
 
 type llvm_var = string
@@ -60,7 +60,7 @@ let (@@) ir1 ir2 = {
 let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
   | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
-                         
+  | LLVM_type_void -> "void"       
 and string_of_var x = x
 
 and string_of_value = function
