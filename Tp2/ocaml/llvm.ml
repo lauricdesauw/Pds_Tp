@@ -165,7 +165,7 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_va
 let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llvm_ir) ~(param : llvm_var list) =
   let param_string = concat_in_string param in 
   let head = empty_ir @: ("define " ^ string_of_type ret_type ^ string_of_var funct_name ^ "(" ^ param_string ^ ") {\n ") in
-  let queue = empty_ir @: "\n}\n" in
+  let queue = empty_ir @: "ret void\n}\n" in
   head @@ body_ir @@ queue 
 
 let rec str_of_list_print l_var =
