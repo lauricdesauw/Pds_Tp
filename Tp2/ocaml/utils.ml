@@ -43,7 +43,8 @@ let string_transform str =
   in (fst r, 1 + (String.length str) - (snd r))
   (*         + 1 for \00             - 1 by \n because each ('\' '\n') is transformed into one char *)
    
-exception Undeclared_variable
+exception Undeclared_variable of string 
+exception Undeclared_function 
 exception Wrong_decl_expr
 exception Wrong_type_for_parameter
 
