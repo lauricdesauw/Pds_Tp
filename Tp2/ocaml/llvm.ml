@@ -89,18 +89,18 @@ and string_of_instr_seq = function
 
 and string_of_instr i = i
 
-let rec gen_ir_decl l_var typ =
-  match l_var with
-  | [] -> empty_ir
-  | symb::tab ->
+let rec gen_ir_decl l_var typ id_l=
+  match l_var, id_l with
+  | [],_ -> empty_ir
+  | symb::tab, id::id_l' ->
      match symb with
      |  Var(symb_name) -> 
-         let ir0 = (gen_ir_decl  tab typ) in
-         (empty_ir @: "%" ^ symb_name ^ " = alloca " ^  string_of_type typ ^ "\n") @@ ir0
+         let ir0 = (gen_ir_decl  tab typ id_l') in
+         (empty_ir @: "%" ^ symb_name ^ id ^ " = alloca " ^  string_of_type typ ^ "\n") @@ ir0
      |Tab(symb_name, offset_expr) -> match offset_expr with
                                      | IntegerExpression(size) ->
-                                        let ir0 = (gen_ir_decl  tab typ) in
-                                        (empty_ir @: "%" ^ symb_name ^ " = alloca " ^  string_of_type (LLVM_type_tab(size)) ^ "\n") @@ ir0
+                                        let ir0 = (gen_ir_decl  tab typ id_l') in
+                                        (empty_ir @: "%" ^ symb_name ^id ^ " = alloca " ^  string_of_type (LLVM_type_tab(size)) ^ "\n") @@ ir0
                                      | _ -> raise Wrong_decl_expr
                                          
        
@@ -145,7 +145,7 @@ let llvm_define_main (ir : llvm_ir) : llvm_ir =
 
 let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var) ~(offset : llvm_value) : llvm_instr =
   string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type tab_type ^ ", " ^string_of_type tab_type ^ "* " ^
-    string_of_var tab ^ ", " ^  "i64 0, i64 " ^ string_of_value offset^ "\n"
+    string_of_var tab ^ ", " ^  "i64 0, i32 " ^ string_of_value offset^ "\n"
 
 let rec concat_in_string l1 =
   match l1 with

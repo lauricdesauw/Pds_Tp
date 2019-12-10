@@ -2,7 +2,8 @@ let tmp = ref 0
 let lab = ref 0
 let glob = ref 0
 let id = ref 0
-       
+let id_v = ref 0
+         
 (* generate a new unique local identifier (starting with %) *)
 let newtmp: unit -> string = function () ->
   tmp := succ !tmp;
@@ -23,6 +24,15 @@ let newglob str =
   glob := succ !glob;
   "@" ^ str ^ (string_of_int !glob)
 
+
+let new_var_id: unit -> string = function () ->
+  id_v := succ !id_v;
+  (string_of_int !id_v)
+
+let rec gen_id_l n =
+  if n = 0 then []
+  else let x = new_var_id() in x::(gen_id_l (n-1)) 
+  
 (* transform escaped newlines ('\' 'n') into newline form suitable for LLVM
  * and append the NUL character (end of string)
  * return a pair: the new string, and its size (according to LLVM)

@@ -14,9 +14,10 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir * symbol_tab
       |Instr (inst) -> let tmp_ir, tmp_v, sym0 = (ir_of_instruction (inst, symT)) in tmp_ir,tmp_v, sym0
       |Bloc(c) -> let ir0,v0 = ir_of_bloc(c,symT) in ir0, v0, symT
       |Function(name,ret_typ,param, body) ->
-        let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT;
-                        state = Declared} in 
-        let body_ir,v0 = ir_of_bloc (body,FunctionSymbol(f_symbol)::(add_var_to_symT param symT)) in
+        let id_l = gen_id_l(length_l(param)) in 
+        let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
+                        state = Declared} in
+        let body_ir,v0 = ir_of_bloc (body,FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) in
         llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param)
         , v0, FunctionSymbol(f_symbol)::symT
 
@@ -49,18 +50,19 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
             empty_ir, LLVM_i32 i
     | VarExpression(var), symT ->
        (match var with
-       | Var(name) -> if  lookup  symT name = None
-                      then raise (Undeclared_variable(name)) 
-                      else
-                        let x = newtmp() in 
-                        let ir =empty_ir @: llvm_load ~store_var:x ~load_var:("%" ^ name) ~load_type:LLVM_type_i32 in 
-                        ir, LLVM_var x
+        | Var(name) ->( match  ( lookup  symT name) with
+                         | None ->  raise (Undeclared_variable(name)) 
+                         | Some r -> let id = get_id r in 
+                                     let x = newtmp() in 
+                                     let ir =empty_ir @: llvm_load ~store_var:x ~load_var:("%" ^ name ^ id) ~load_type:LLVM_type_i32 in 
+                                     ir, LLVM_var x)
        | Tab(name,offset_expr) ->  (match (lookup  symT name) with
                                      | None ->raise ( Undeclared_variable (name)) 
-                                     | Some r -> let ir0,v0 = ir_of_expression (offset_expr,symT) in
+                                     | Some r ->let id = get_id r in 
+                                        let ir0,v0 = ir_of_expression (offset_expr,symT) in
                                         let x = newtmp() in
                                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
-                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name)  ~offset:v0 in 
+                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name ^ id)  ~offset:v0 in 
                                         ir1,LLVM_var x
                                    )
        
@@ -102,24 +104,30 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
 and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * symbol_table = function
   | AffectInstruction(var,e), symT ->
      (  match var with
-        | Var(name) -> let ir0,v = ir_of_expression (e,symT) in 
-                       let ir = ir0 @: llvm_affect ~res_var:("%" ^ name) ~res_type:LLVM_type_i32 ~value:v in 
-                       ir,(LLVM_var name),symT
-                       
+        | Var(name) -> (match (lookup symT name) with
+                        | None -> raise (Undeclared_variable name)
+                        | Some r -> let id = get_id r in 
+                                    let ir0,v = ir_of_expression (e,symT) in 
+                                    let ir = ir0 @: llvm_affect ~res_var:("%" ^ name ^ id) ~res_type:LLVM_type_i32 ~value:v in 
+                                    ir,(LLVM_var name),symT
+                       )                 
         | Tab(name,offset_expr) ->
            (match (lookup  symT name) with
             | None -> raise (Undeclared_variable name) 
-            | Some r -> let ir,v = ir_of_expression (e,symT) in 
+            | Some r -> let id = get_id r in 
+                        let ir,v = ir_of_expression (e,symT) in 
                         let ir0,v0 = ir_of_expression (offset_expr,symT) in
                         let x = newtmp() in
                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
-                        let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name)  ~offset:v0 in 
+                        let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name ^ id)  ~offset:v0 in 
                         let irf = ir1 @: llvm_affect ~res_var:x ~res_type:LLVM_type_i32 ~value:v in 
                         irf,(LLVM_var x), symT
            )
      )
 
-  | DeclInstruction(typ,l_var), symT -> (gen_ir_decl l_var (llvm_type_of_asd_typ typ)), (LLVM_i32 0), (add_list typ l_var symT)
+  | DeclInstruction(typ,l_var), symT ->
+     let id_l = gen_id_l (length_l l_var) in 
+     (gen_ir_decl l_var (llvm_type_of_asd_typ typ) id_l), (LLVM_i32 0), (add_list typ l_var symT id_l)
 
   | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
      let ir_if,v_if = ir_of_expression (cond,symT) in
@@ -143,7 +151,8 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      (ir @: llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v),(LLVM_i32 0), symT
 
   | ProtoInstruction(name, ret_typ, param), symT ->
-     let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT;
+     let id_l = gen_id_l (length_l param) in
+     let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
                      state = Declared} in 
 
      empty_ir,LLVM_i32 0, FunctionSymbol(f_symbol)::symT
@@ -207,11 +216,11 @@ and ir_of_program (l : codeObj list) (symT : symbol_table) : llvm_ir =
 
 and map_aux symT instr = instr,symT
 
-and get_symbol param symT =
-  match param with
-  | [] -> []
-  | t::q ->match t with
-             Var(name) ->  VariableSymbol(Type_Int,name)::(get_symbol q symT)
+and get_symbol param symT id_l=
+  match param, id_l with
+  | [],_ -> []
+  | t::q,id::id_l' ->match t with
+             Var(name) ->  VariableSymbol(Type_Int,name,id)::(get_symbol q symT id_l')
   
 and proj_first_elem tripl =
   match tripl with
@@ -244,3 +253,8 @@ and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
 
      (ir0 @@ (ir_of_program codeObj_list (sym0) ) ),( LLVM_i32 0) 
                                                    
+
+and length_l l =
+  match l with
+  | [] -> 0
+  | t::q -> 1 + (length_l q)
