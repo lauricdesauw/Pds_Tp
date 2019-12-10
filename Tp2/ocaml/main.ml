@@ -11,7 +11,7 @@ let _ =
     (* Activate one of these output: pretty-print or LLVM IR *)
 
     (* Pretty-print input *)
-    print_endline (Prettyprinter.prettyprint ast);
+    (*print_endline (Prettyprinter.prettyprint ast);*)
 
     (* Print LLVM IR *)
 

@@ -10,6 +10,7 @@ type llvm_type =
   | LLVM_type_i32
   | LLVM_type_tab of  int
   | LLVM_type_void
+  | LLVM_type_string of int
 (* TODO: to complete *)
 
 type llvm_var = string
@@ -60,7 +61,8 @@ let (@@) ir1 ir2 = {
 let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
   | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
-  | LLVM_type_void -> "void"       
+  | LLVM_type_void -> "void"
+  | LLVM_type_string(size) -> "[ " ^ string_of_int size ^ " x i8 ]"
 and string_of_var x = x
 
 and string_of_value = function
@@ -176,7 +178,7 @@ let rec str_of_list_print l_var =
   | t_v::q_v -> ", i32* " ^ string_of_var t_v ^ str_of_list_print q_v
               
 let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
-  string_of_var var ^ " global [" ^ string_of_int size ^ " x i8] c\"" ^ string_value  ^ "\\" ^ "00" ^ "\""
+  string_of_var var ^ "= global [" ^ string_of_int size ^ " x i8] c\"" ^ string_value  ^ "\\" ^ "00" ^ "\""
                           
 let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
   let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
