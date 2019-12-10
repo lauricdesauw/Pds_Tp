@@ -62,75 +62,13 @@ let rec add_var_to_symT param symT =
   | [] -> symT
   | Var(name)::q -> VariableSymbol(Type_Int, name) :: (add_var_to_symT q symT)
 
-
-              
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+let rec str_of_tab symT =
+  match symT with
+  | [] -> ""
+  | [t] -> (match t with
+           | VariableSymbol(typ,ident) -> ident
+           | FunctionSymbol(f) -> f.identifier)
+         
+  | t::q -> match t with
+            | VariableSymbol(typ,ident) -> ident ^ ", " ^ (str_of_tab q)
+           | FunctionSymbol(f) -> f.identifier ^ ", " ^ (str_of_tab q)                                 

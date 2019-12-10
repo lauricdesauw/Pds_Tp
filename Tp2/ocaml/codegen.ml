@@ -146,7 +146,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
   | CallInstruction(var), symT -> ( match var with
                                             | Func(name, param) -> 
                                                (match lookup symT name with
-                                                | None -> Printf.printf "'%s'\n" (str_of_tab(symT)); raise (Undeclared_function name)
+                                                | None -> raise (Undeclared_function name)
                                                 | Some r ->
                                                    let x = newtmp() in
                                                    let ir_param, param_var = get_value param in
