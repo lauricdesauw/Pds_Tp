@@ -100,7 +100,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
   | AffectInstruction(var,e), symT ->
      (  match var with
         | Var(name) -> let ir0,v = ir_of_expression (e,symT) in 
-                       let ir = ir0 @: llvm_affect ~res_var:name ~res_type:LLVM_type_i32 ~value:v in 
+                       let ir = ir0 @: llvm_affect ~res_var:("%" ^ name) ~res_type:LLVM_type_i32 ~value:v in 
                        ir,(LLVM_var name),symT
                        
         | Tab(name,offset_expr) ->
@@ -110,7 +110,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
                         let ir0,v0 = ir_of_expression (offset_expr,symT) in
                         let x = newtmp() in
                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
-                        let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
+                        let ir1 = ir @@ ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name)  ~offset:v0 in 
                         let irf = ir1 @: llvm_affect ~res_var:x ~res_type:LLVM_type_i32 ~value:v in 
                         irf,(LLVM_var x), symT
            )

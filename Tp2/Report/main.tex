@@ -26,17 +26,19 @@
 \section{Tabular}
 
 \section{Functions}
-
+Speak about the ret void 
 \section{The PRINT and READ}
 
 \begin{itemize}
 \item[\underline{Print}:] We have defined an instruction \emph{PrintInstruction}
   wich take an list of \emph{printable} which is a wrapper for string and
   expression.
-  We generate the string we will have to print by replacing all \emph{int} by the
-  string \emph{``\%d''}. This string is put in the header in order as a global
-  variable. 
-\item[\underline{Read}:]
+  We generate the string we want to print by replacing all \emph{int} by the
+  string \emph{``\%d''} and we save all those variables and their order for the next step.
+  This string is put in the header in order as a global variable. 
+  Then we make a call to the function \emph{@printf} with the previous string and the variables we wants to print. 
+\item[\underline{Read}:] The method is the same as previously but instead of
+  \emph{printable} the instruction take \emph{varaibles} and in the llvm we call \emph{@scanf}. 
 \end{itemize}
 
 \section{Pointer and Structure}
