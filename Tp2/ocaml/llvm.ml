@@ -148,7 +148,7 @@ let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var)
 let rec concat_in_string l1 =
   match l1 with
   | [] -> ""
-  | t1::q1 -> "i32 "^ string_of_var t1 
+  | [t1] -> "i32 "^ string_of_var t1 
   | t1::t2::q1 -> "i32 "^ string_of_var t1 ^ ", " ^ (concat_in_string (t2::q1))
 
 let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(id : string) =
