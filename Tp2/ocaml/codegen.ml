@@ -55,7 +55,7 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                      | Some r -> let ir0,v0 = ir_of_expression (offset_expr,symT) in
                                         let x = newtmp() in
                                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
-                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:name  ~offset:v0 in 
+                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name)  ~offset:v0 in 
                                         ir1,LLVM_var x
                                    )
        
