@@ -148,7 +148,8 @@ let llvm_get_elem ~(st_var : llvm_var) ~(tab_type : llvm_type) ~(tab : llvm_var)
 let rec concat_in_string l1 =
   match l1 with
   | [] -> ""
-  | t1::q1 -> "i32 "^ string_of_var t1 ^ ", " ^ (concat_in_string q1)
+  | t1::q1 -> "i32 "^ string_of_var t1 
+  | t1::t2::q1 -> "i32 "^ string_of_var t1 ^ ", " ^ (concat_in_string (t2::q1))
 
 let llvm_if_then_else ~(ir_cond : llvm_ir) ~(ir_then : llvm_ir) ~(ir_else : llvm_ir) ~(if_value : llvm_value) ~(id : string) =
   let cond_instr  = ir_cond @: "br i1 " ^ string_of_value if_value ^ ", label %then" ^ id ^ ", label %else" ^ id ^ " \n" in 
@@ -165,7 +166,8 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_value : llvm_va
 let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llvm_ir) ~(param : llvm_var list) =
   let param_string = concat_in_string param in 
   let head = empty_ir @: ("define " ^ string_of_type ret_type ^ string_of_var funct_name ^ "(" ^ param_string ^ ") {\n ") in
-  let queue = empty_ir @: "ret void\n}\n" in
+  let is_void = if (ret_type = LLVM_type_void) then "ret void" else "ret i32 0" in 
+  let queue = empty_ir @:  is_void ^ "\n}\n" in
   head @@ body_ir @@ queue 
 
 let rec str_of_list_print l_var =
@@ -179,11 +181,11 @@ let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
 let llvm_print  ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
   let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
-    "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var ^ ")"
+    "call i32 (i8*, ... ) @printf(i8* " ^ str_v ^ str_of_list_print l_var ^ ")\n"
   
 
 let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(var_type : llvm_type) ~(l_var : llvm_var list) : llvm_instr =
 let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
-  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ str_of_list_print l_var ^ ")"
+  "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ str_of_list_print l_var ^ ")\n"
 
