@@ -53,10 +53,17 @@ let get_type sym =
   match sym with
   | VariableSymbol(t,name) -> t
   | FunctionSymbol(f) -> f.return_type
+
 (* Note : obviously not symmetric *)
 let merge = (@)
 
+let rec add_var_to_symT param symT =
+  match param with
+  | [] -> symT
+  | Var(name)::q -> VariableSymbol(Type_Int, name) :: (add_var_to_symT q symT)
 
+
+              
 
 
 

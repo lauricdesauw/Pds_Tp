@@ -8,7 +8,8 @@ open Utils
 
 type llvm_type =
   | LLVM_type_i32
-  | LLVM_type_tab of  int 
+  | LLVM_type_tab of  int
+
 (* TODO: to complete *)
 
 type llvm_var = string
