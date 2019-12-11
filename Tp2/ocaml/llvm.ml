@@ -179,7 +179,7 @@ let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llv
 let rec str_of_list_print l_var =
   match l_var with
   | []-> ""
-  | t_v::q_v -> ", i32* " ^ string_of_var t_v ^ str_of_list_print q_v
+  | t_v::q_v -> ", i32 " ^ string_of_var t_v ^ str_of_list_print q_v
               
 let llvm_string ~(var : llvm_var) ~(string_value : string) ~(size : int)  =
   string_of_var var ^ "= global [" ^ string_of_int size ^ " x i8] c\"" ^ string_value  ^ "\\" ^ "00" ^ "\""
