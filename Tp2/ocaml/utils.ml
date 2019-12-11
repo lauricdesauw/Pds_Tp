@@ -57,7 +57,7 @@ exception Undeclared_variable of string
 exception Undeclared_function of string
 exception Wrong_decl_expr
 exception Wrong_type_for_parameter
-
+exception Wrong_field
 
 
 
