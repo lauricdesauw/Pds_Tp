@@ -14,12 +14,20 @@ type function_symbol = {
   identifier: ident;
   arguments: symbol_table;
   state: function_symbol_state;
-}
-
+  }
+                     
+and struct_symbol = {
+    identifier : ident;
+    id : string;
+    fields : string list;
+    fields_type : typ list;
+  }
+                     
 and symbol =
   | VariableSymbol of typ * ident * string
   | FunctionSymbol of function_symbol
-
+  | StructSymbol of struct_symbol
+                  
 and symbol_table = symbol list
 
 
@@ -32,6 +40,10 @@ let lookup tab id =
           Some r
         else
           assoc key q
+    | (StructSymbol {identifier = ide; _} as r)::q ->
+       if key = ide then
+         Some r
+       else assoc key q
     | [] -> None
   in assoc id tab
 
@@ -53,6 +65,13 @@ let get_type sym =
   match sym with
   | VariableSymbol(t,name,_) -> t
   | FunctionSymbol(f) -> f.return_type
+
+let get_field_type strct field =
+  let rec aux l1 l2 key=
+    match l1,l2 with
+    | t1::q1, t2::q2 -> if t2 = key then t1 else aux q1 q2 key
+    | [],_ -> raise Wrong_field
+  in aux (strct.fields) (strct.fields_type) field
 
 (* Note : obviously not symmetric *)
 let merge = (@)
