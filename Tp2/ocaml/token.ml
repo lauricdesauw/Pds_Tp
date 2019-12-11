@@ -28,3 +28,5 @@ type token =
   | WHILE_KW
   | DO_KW
   | DONE_KW
+  | STRUCT_KW
+  | DOT

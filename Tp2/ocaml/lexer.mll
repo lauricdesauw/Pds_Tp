@@ -84,6 +84,10 @@ rule tokenize = parse
       { PRINT_KW::tokenize lexbuf }
   | "READ"
       { READ_KW::tokenize lexbuf }
+  | "STRUCT"
+      { STRUCT_KW::tokenize lexbuf }
+  | "."
+      { DOT::tokenize lexbuf }
 
   (* other tokens (no conflict with keywords in VSL) *)
   | letter (letter | digit)* as lxm

@@ -6,6 +6,7 @@ type typ =
   | Type_Int
   | Type_void
   | Type_tab of int
+  | Type_struct of string
     
 type expression =
   | AddExpression of expression * expression
@@ -18,6 +19,7 @@ type expression =
 
 and variables =
   | Var of string
+  | Field of string * string
   | Tab of string * expression
   | Func of string * (expression list)
 
@@ -36,7 +38,8 @@ type instruction =
   | ReadInstruction of variables list
   | CallInstruction of variables
 
-and codeObj = Expr of expression | Instr of instruction | Bloc of bloc | Function of string * typ * (variables list) * bloc
+and codeObj = Expr of expression | Instr of instruction | Bloc of bloc
+            | Function of string * typ * (variables list) * bloc | Struct of string * (instruction list)
 
 and bloc = (instruction list) * (codeObj list)
 

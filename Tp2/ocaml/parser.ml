@@ -6,6 +6,7 @@ type wrapper =
   | Wrap_None
   | Wrap_Expression of expression
   | Wrap_EList of expression list
+  | Wrap_String of string
 
 (* p? *)
 let opt p = parser
@@ -68,17 +69,19 @@ and primary = parser
   (* TODO : that's all? *)
 
 and variable = parser
-             | [< 'IDENT id; e = tab_or_func >] -> to_variables id e
+             | [< 'IDENT id; e = tab_or_func_or_field >] -> to_variables id e
 
-and tab_or_func = parser
-        | [< 'LSQ; e = expression; 'RSQ >] -> Wrap_Expression e
-        | [< 'LP; q = arguments; 'RP >] -> Wrap_EList q
-        | [< >] -> Wrap_None
+and tab_or_func_or_field = parser
+                         | [< 'LSQ; e = expression; 'RSQ >] -> Wrap_Expression e
+                         | [< 'LP; q = arguments; 'RP >] -> Wrap_EList q
+                         | [< 'DOT; 'IDENT field >] -> Wrap_String field
+                         | [< >] -> Wrap_None
 
 and to_variables id = function
   | Wrap_None -> Var id
   | Wrap_Expression e -> Tab (id, e)
   | Wrap_EList args -> Func (id, args)
+  | Wrap_String field -> Field (id, field)
 
 and arguments = parser
               | [< e = expression; q = arguments_aux >] -> e::q
@@ -99,7 +102,7 @@ and instruction = parser
                 | [< v = variable; i = assign_or_call v >] -> Instr i
                 | [<'IF_KW; cond = expression; 'THEN_KW; b_if = if_while_bloc; b_else = elsebloc; 'FI_KW>]
                   -> Instr(IfElseInstruction(cond,b_if,b_else))
-                | [< 'INT_KW; id = variable; id_list = decl >] -> Instr (DeclInstruction(Type_Int, id::id_list))
+                | [< t = typ; id = variable; id_list = decl >] -> Instr (DeclInstruction(t, id::id_list))
                 | [< 'WHILE_KW; cond = expression; 'DO_KW; b = if_while_bloc; 'DONE_KW >]
                   -> Instr(WhileInstruction(cond,b))
                 | [< 'PROTO_KW; t = typ; 'IDENT f; 'LP; q = proto_var; 'RP >] -> Instr (ProtoInstruction (f, t, q))
@@ -108,6 +111,8 @@ and instruction = parser
                 | [< 'RETURN_KW; e = expression >] -> Instr (ReturnInstruction e)
                 | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
                 | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
+                | [< 'STRUCT_KW; 'IDENT s; 'LB; b = bloc; 'RB >] ->
+                  let decl, _ = bloc in Struct (s, decl)
 
 and variables = parser
               | [< v = variable; q = variables_aux >] -> v::q
@@ -149,6 +154,7 @@ and printables_aux = parser
 and typ = parser
         | [< 'INT_KW >] -> Type_Int
         | [< 'VOID_KW >] -> Type_void
+        | [< 'STRUCT_KW; 'IDENT s >] -> Type_struct s
 
 and proto_var = parser
               | [< a = variable; q = proto_var_aux >] -> a::q
