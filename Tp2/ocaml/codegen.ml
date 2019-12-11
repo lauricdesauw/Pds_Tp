@@ -77,8 +77,8 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                               let x = newtmp() in
                                               let ir_param, param_var = get_value param symT in
                                               let ret_typ = llvm_type_of_asd_typ (get_type r) in 
-                                              (ir_param @:
-                                                 llvm_call ~ret_type:ret_typ ~fun_name:("@"^name) ~param:param_var), LLVM_var x
+                                              (ir_param @: 
+                                                 llvm_call_affect ~ret_var:x ~ret_type:ret_typ ~fun_name:("@"^name) ~param:param_var), LLVM_var x
                               )
        | Field(name,field) ->(match (lookup  symT name) with
                                | None ->raise ( Undeclared_variable (name)) 
