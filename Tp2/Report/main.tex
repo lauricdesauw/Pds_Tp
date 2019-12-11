@@ -75,7 +75,7 @@ Structures are defined much like in C: the keyword struct, followed by the name 
 Declaring a variable using a structure as its type follows the same rules as declaring an integer variable: only the INT keyword is replaced with the name of the structure.
 In LLVM we used array of pointer to represent our structure and we stocked the equivalent indice/field in the table of symbols. 
 
-Unfortunately, our implementation of structures is far from complete. Indeed, we handle fields poorly. Instead of handling them in the symbol table, which seems natural now, we tried to handle them outside of it which complicated a lot of things for us. Our implementation make allow us to handle easily the struct in the expressions but the declaration is a tougher part, with the implementation described previously it may have been easier. Ultimately, we abandoned trying to fix our implementation of structures because of bugs in the mandatory work we had not noticed prior to that.
+Unfortunately, our implementation of structures is far from complete. Indeed, we handle fields poorly. Instead of handling them in the symbol table, which seems natural now, we tried to handle them outside of it which complicated a lot of things for us. Our implementation make allow us to handle easily the struct in the expressions but the declaration was a tougher part. Ultimately, we abandoned trying to fix our implementation of structures because of bugs in the mandatory work we had not noticed prior to that.
 
 One thing that could have caused us problems is passing variables typed with structures to functions and using structures to define other structures.
 
