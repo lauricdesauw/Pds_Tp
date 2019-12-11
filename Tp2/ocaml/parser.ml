@@ -112,7 +112,7 @@ and instruction = parser
                 | [< 'PRINT_KW; s = printables >] -> Instr (PrintInstruction s)
                 | [< 'READ_KW; v = variables >] -> Instr (ReadInstruction v)
                 | [< 'STRUCT_KW; 'IDENT s; 'LB; b = bloc; 'RB >] ->
-                  let decl, _ = bloc in Struct (s, decl)
+                  let decl, _ = b in Struct (s, decl)
 
 and variables = parser
               | [< v = variable; q = variables_aux >] -> v::q
