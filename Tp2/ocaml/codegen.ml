@@ -75,7 +75,7 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                | None -> raise (Undeclared_function name)
                                            | Some r ->
                                               let x = newtmp() in
-                                              let ir_param, param_var = get_value param in
+                                              let ir_param, param_var = get_value param symT in
                                               let ret_typ = llvm_type_of_asd_typ (get_type r) in 
                                               (ir_param @:
                                                  llvm_call ~ret_type:ret_typ ~fun_name:("@"^name) ~param:param_var), LLVM_var x
@@ -180,7 +180,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
                                                 | None -> raise (Undeclared_function name)
                                                 | Some r ->
                                                    let x = newtmp() in
-                                                   let ir_param, param_var = get_value param in
+                                                   let ir_param, param_var = get_value param symT in
                                                    let ret_typ = llvm_type_of_asd_typ (get_type r) in 
                                                    (ir_param @:
                                                       llvm_call ~ret_type:ret_typ ~fun_name:("@"^name) ~param:param_var), LLVM_var x, symT
@@ -248,19 +248,20 @@ and proj_third_elem tripl =
   match tripl with
   | _, _, sym  -> sym
 
-and get_value param_l =
+and get_value param_l symT =
   match param_l with
   | [] -> empty_ir, []  
-  | t::q -> let ir0,v0 = ir_of_expression(t,[])in
+  | t::q -> let ir0,v0 = ir_of_expression(t,symT)in
             match v0 with
-              LLVM_var(var) -> let ir1,v_l = get_value q in
+            | LLVM_var(var) -> let ir1,v_l = get_value q symT in
                                ir1 @@ ir0 , var :: v_l 
-                    
+            | LLVM_i32(i) -> let ir1,v_l = get_value q symT in      
+                             ir1, (string_of_int i)::v_l
 
 and ir_of_bloc : bloc * symbol_table -> llvm_ir * llvm_value = function
   | (instr_l,codeObj_list ), symT ->
 
-     let instr_list = List.map (map_aux []) instr_l  in
+     let instr_list = List.map (map_aux symT) instr_l  in
      let tmp_list = List.map (ir_of_instruction) instr_list in
 
      let ir_list = List.map (proj_first_elem) tmp_list in 

@@ -21,7 +21,7 @@ type llvm_var = string
 type llvm_value =
   | LLVM_i32 of int
   | LLVM_var of llvm_var
-(* TODO: to complete? *)
+
 
 
 type llvm_ir = (* type of generated IR *)
@@ -119,7 +119,7 @@ let rec gen_set_struct name fields fields_type n =
   | [], _ -> empty_ir
   | t::q, t_type::q_type -> let x = newtmp() in
                             let ir = gen_set_struct name q q_type (n+1) in 
-                            ir @: string_of_var x ^ "= getelementptr inbounds " ^ string_of_type t_type ^ ", " ^string_of_type t_type ^ "* " 
+                            ir @: string_of_var x ^ "= getelementptr inbounds " ^ string_of_type t_type ^ ", " ^string_of_type t_type ^ "* %" 
                               ^ string_of_var t ^ ", " ^  "i64 0, i32 " ^string_of_int n ^ "\n"
                               ^ "store " ^ string_of_type t_type ^ string_of_var x  ^ ", " ^ string_of_type t_type ^"* " ^ x  ^ "\n" 
 

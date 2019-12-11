@@ -1,0 +1,10 @@
+br label %fi2
+else2:
+%tmp25= getelementptr inbounds [ 3 x i32 ], [ 3 x i32 ]* %a6, i64 0, i32 1
+%tmp26= load i32, i32* %tmp25
+store i32 %tmp26, i32* %c8
+%tmp28= load i32, i32* %c8
+call i32 @g(i32 %tmp28,i32 3)
+store i32 %tmp27, i32* %c8
+
+

@@ -1,10 +1,5 @@
 PROTO INT g(a, b)
 
-STRUCT pair
-{
-INT x, y
-}
-
 FUNC VOID f()
 {
 PRINT "Hello"
@@ -24,7 +19,7 @@ PRINT "a: ", a, " b: ", b, "\n "
 }
 DONE
 {
-INT a[3],b
+INT a[3],b,c
 b:=1
 a[b+1]:=2
 PRINT b

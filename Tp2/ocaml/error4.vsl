@@ -1,9 +1,5 @@
 PROTO INT g(a, b)
 
-STRUCT pair
-{
-INT x, y
-}
 
 FUNC VOID f()
 {
@@ -12,6 +8,10 @@ PRINT "Hello"
 
 FUNC VOID main()
 {
+STRUCT pair
+{
+INT x, y
+}
 INT a,b,c
 a:=(2+5)*2*(2+1)
 b:=0
