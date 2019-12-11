@@ -13,6 +13,7 @@ PRINT "Hello"
 FUNC VOID main()
 {
 INT a,b,c
+pair d
 a:=(2+5)*2*(2+1)
 b:=0
 WHILE a-5

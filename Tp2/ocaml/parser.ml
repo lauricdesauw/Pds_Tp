@@ -154,7 +154,7 @@ and printables_aux = parser
 and typ = parser
         | [< 'INT_KW >] -> Type_Int
         | [< 'VOID_KW >] -> Type_void
-        | [< 'STRUCT_KW; 'IDENT s >] -> Type_struct s
+        | [< 'IDENT s >] -> Type_struct s
 
 and proto_var = parser
               | [< a = variable; q = proto_var_aux >] -> a::q
