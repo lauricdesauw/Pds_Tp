@@ -1,13 +1,8 @@
 PROTO INT g(a, b)
 
-STRUCT pair
+FUNC VOID f(a)
 {
-INT x, y
-}
-
-FUNC VOID f()
-{
-PRINT "Hello"
+PRINT "Hello", a
 }
 
 FUNC VOID main()
@@ -38,7 +33,7 @@ c:=a[1]
 c:=c+3
 }
 FI
-f()
+f(b)
 }
 }
 
