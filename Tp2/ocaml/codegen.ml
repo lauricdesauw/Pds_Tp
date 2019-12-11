@@ -13,14 +13,17 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir * symbol_tab
       |Expr(exp) ->  let ir0,v0 = ir_of_expression (exp, symT) in ir0,v0,symT
       |Instr (inst) -> let tmp_ir, tmp_v, sym0 = (ir_of_instruction (inst, symT)) in tmp_ir,tmp_v, sym0
       |Bloc(c) -> let ir0,v0 = ir_of_bloc(c,symT) in ir0, v0, symT
-      |Function(name,ret_typ,param, body) ->
-        let id_l = gen_id_l(length_l(param)) in 
-        let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
-                        state = Declared} in
-        let body_ir,v0 = ir_of_func_bloc body (FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) param in
-        llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param id_l)
-        , v0, FunctionSymbol(f_symbol)::symT
-
+      |Function(name,ret_typ,param, body) -> let id_l = gen_id_l(length_l(param)) in 
+                                             let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
+                                                             state = Declared} in
+                                             let body_ir,v0 = ir_of_func_bloc body (FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) param in
+                                             llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir
+                                               ~param:(llvm_var_of_asd_var_l param id_l), v0, FunctionSymbol(f_symbol)::symT
+      | Struct(name, instr_l) -> let fields,fields_type = gen_fields instr_l in
+                                 let id = new_var_id() in
+                                 let s_symbol =  { identifier = name ; id =id ; fields = fields; fields_type = fields_type} in
+                                 let fields_llvm_type = List.map (llvm_type_of_asd_typ) fields_type in  
+                                 ((gen_ir_decl_fields name fields fields_llvm_type (List.length fields)) @@ (gen_set_struct name fields fields_llvm_type 0)), LLVM_i32 0, StructSymbol(s_symbol)::symT  
     in 
     ir,sym0
     
@@ -68,15 +71,27 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                         ir2,LLVM_var y
                                    )
        
-    | Func(name, param) -> (match lookup symT name with
-                                           | None -> raise (Undeclared_function name)
+       | Func(name, param) -> (match lookup symT name with
+                               | None -> raise (Undeclared_function name)
                                            | Some r ->
                                               let x = newtmp() in
                                               let ir_param, param_var = get_value param in
                                               let ret_typ = llvm_type_of_asd_typ (get_type r) in 
                                               (ir_param @:
                                                  llvm_call ~ret_type:ret_typ ~fun_name:("@"^name) ~param:param_var), LLVM_var x
-                           )
+                              )
+       | Field(name,field) ->(match (lookup  symT name) with
+                               | None ->raise ( Undeclared_variable (name)) 
+                               | Some r -> let v_offset = ind_in_struct name field symT in 
+                                           let x = newtmp() in
+                                           let str_typ = llvm_type_of_asd_typ (get_type r) in 
+                                           let ir1 =empty_ir @: llvm_get_field ~st_var:x ~strct_type:str_typ ~strct:( "%" ^ name)  ~offset:v_offset in
+                                           let y = newtmp() in
+                                           let ir2 = ir1 @: llvm_load ~store_var:y ~load_var:x ~load_type:LLVM_type_i32_ptr in
+                                           let z = newtmp() in
+                                           let ir3 = ir2 @: llvm_load ~store_var:z ~load_var:y ~load_type:LLVM_type_i32 in
+                                           ir3,LLVM_var z
+                             )
            )
     | AddExpression (e1,e2), symT ->
             let ir1, v1 = ir_of_expression (e1,symT) in
@@ -128,7 +143,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      )
 
   | DeclInstruction(typ,l_var), symT ->
-     let id_l = gen_id_l (length_l l_var) in 
+     let id_l = gen_id_l (List.length l_var) in 
      (gen_ir_decl l_var (llvm_type_of_asd_typ typ) id_l), (LLVM_i32 0), (add_list typ l_var symT id_l)
 
   | IfElseInstruction(cond,then_bloc,else_bloc), symT ->
@@ -153,7 +168,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      (ir @: llvm_return ~ret_type:LLVM_type_i32 ~ret_value:v),(LLVM_i32 0), symT
 
   | ProtoInstruction(name, ret_typ, param), symT ->
-     let id_l = gen_id_l (length_l param) in
+     let id_l = gen_id_l (List.length param) in
      let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
                      state = Declared} in 
 
@@ -186,7 +201,7 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      let str_val = "%d\n" in
      let str_type = LLVM_type_tab(3) in 
      let ir0 = empty_ir @^ llvm_string ~var:x ~string_value:str_val ~size:size in
-     let id_l = gen_id_l (length_l st_var) in 
+     let id_l = gen_id_l (List.length st_var) in 
      let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~l_var:(llvm_var_of_asd_var_l st_var id_l) in
      ir, LLVM_i32 0, symT
     
@@ -262,6 +277,11 @@ and length_l l =
   | [] -> 0
   | t::q -> 1 + (length_l q)
 
+and ind_in_struct name field symT =
+  match (lookup symT name) with
+  | None -> raise Wrong_field
+  | Some r -> get_ind r field 
+    
 and ir_of_func_bloc  bloc symT param = 
   match param with
   | [] -> ir_of_bloc (bloc,symT)
@@ -273,3 +293,17 @@ and ir_of_func_bloc  bloc symT param =
                                 let ir0 = empty_ir @: llvm_decl ~res_var:(name ^ id) ~res_type:LLVM_type_i32 in 
                                 let ir1 = ir0 @: llvm_affect ~res_var:("%" ^ name ^ id) ~res_type:LLVM_type_i32 ~value:(LLVM_var("%" ^ name ^ old_id )) in 
                                 ir1 @@ ir, v
+                                
+and gen_fields instr_l =
+  match instr_l with
+  | DeclInstruction(typ,l_var)::instr_l' ->
+     match l_var with
+     | [] -> raise Wrong_field_declaration
+     | t::[] -> match t with
+                | Var(name) -> let f, f_t = gen_fields instr_l' in
+                               name::f,typ::f_t
+                | Tab(name,_) -> let f, f_t = gen_fields instr_l' in
+                               name::f,typ::f_t
+                | Func(name, _) -> let f, f_t = gen_fields instr_l' in
+                               name::f,typ::f_t
+                                             

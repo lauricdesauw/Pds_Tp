@@ -65,6 +65,7 @@ let get_type sym =
   match sym with
   | VariableSymbol(t,name,_) -> t
   | FunctionSymbol(f) -> f.return_type
+  | StructSymbol(s) ->  Type_struct(s.identifier)
 
 let get_field_type strct field =
   let rec aux l1 l2 key=
@@ -94,3 +95,12 @@ let rec str_of_tab symT =
 let get_id symb =
   match symb with
   | VariableSymbol(_,_,id) -> id
+
+let get_ind symb field =
+  let rec aux l key n =
+    match l with
+    | [] -> raise Wrong_field
+    | t::q -> if t = key then n else aux q key (n+1)
+  in 
+    match symb with
+  | StructSymbol(s) -> aux (s.fields) field 0

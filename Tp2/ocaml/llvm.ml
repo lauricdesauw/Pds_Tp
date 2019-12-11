@@ -8,9 +8,12 @@ open Utils
 
 type llvm_type =
   | LLVM_type_i32
+  | LLVM_type_i32_ptr
   | LLVM_type_tab of  int
+  | LLVM_type_struct of int
   | LLVM_type_void
   | LLVM_type_string of int
+
 (* TODO: to complete *)
 
 type llvm_var = string
@@ -60,9 +63,11 @@ let (@@) ir1 ir2 = {
 (* actual IR generation *)
 let rec string_of_type = function
   | LLVM_type_i32 -> "i32"
+  | LLVM_type_i32_ptr -> "i32*"
   | LLVM_type_tab(size) -> "[ " ^ string_of_int size ^ " x i32 ]"
   | LLVM_type_void -> "void"
   | LLVM_type_string(size) -> "[ " ^ string_of_int size ^ " x i8 ]"
+  | LLVM_type_struct(size) -> "[ " ^ string_of_int size ^ " x i32* ]"
 and string_of_var x = x
 
 and string_of_value = function
@@ -97,14 +102,27 @@ let rec gen_ir_decl l_var typ id_l=
      |  Var(symb_name) -> 
          let ir0 = (gen_ir_decl  tab typ id_l') in
          (empty_ir @: "%" ^ symb_name ^ id ^ " = alloca " ^  string_of_type typ ^ "\n") @@ ir0
-     |Tab(symb_name, offset_expr) -> match offset_expr with
+     | Tab(symb_name, offset_expr) -> (match offset_expr with
                                      | IntegerExpression(size) ->
                                         let ir0 = (gen_ir_decl  tab typ id_l') in
                                         (empty_ir @: "%" ^ symb_name ^id ^ " = alloca " ^  string_of_type (LLVM_type_tab(size)) ^ "\n") @@ ir0
-                                     | _ -> raise Wrong_decl_expr
-                                         
-       
-       
+                                     | _ -> raise Wrong_decl_expr)
+
+let rec gen_ir_decl_fields name fields fields_type n=
+  match fields,fields_type with
+  | [],_ -> (empty_ir @: "%" ^ name ^ " = alloca " ^  string_of_type (LLVM_type_struct(n)) ^ "\n") 
+  | t::q,t_type::q_type -> let ir0 = gen_ir_decl_fields name q q_type n in
+                           (empty_ir @: "%" ^ t ^ " = alloca " ^  string_of_type (t_type) ^ "\n") @@ ir0       
+
+let rec gen_set_struct name fields fields_type n =
+  match fields, fields_type with
+  | [], _ -> empty_ir
+  | t::q, t_type::q_type -> let x = newtmp() in
+                            let ir = gen_set_struct name q q_type (n+1) in 
+                            ir @: string_of_var x ^ "= getelementptr inbounds " ^ string_of_type t_type ^ ", " ^string_of_type t_type ^ "* " 
+                              ^ string_of_var t ^ ", " ^  "i64 0, i32 " ^string_of_int n ^ "\n"
+                              ^ "store " ^ string_of_type t_type ^ string_of_var x  ^ ", " ^ string_of_type t_type ^"* " ^ x  ^ "\n" 
+
 (* functions for the creation of various instructions *)
 
 let llvm_add ~(res_var : llvm_var) ~(res_type : llvm_type) ~(left : llvm_value) ~(right : llvm_value) : llvm_instr =
@@ -194,4 +212,14 @@ let llvm_read ~(str_var : llvm_var)  ~(str_type : llvm_type) ~(var_type : llvm_t
 let str_v = "getelementptr inbounds (" ^ string_of_type str_type ^ ", " ^string_of_type str_type ^ "* " ^
                 string_of_var str_var ^ ", " ^  "i64 0, i64 0)" in
   "call i32 (i8*, ... ) @scanf(i8* " ^ str_v ^ "," ^ str_of_list_print l_var ^ ")\n"
+
+let llvm_get_field ~(st_var : llvm_var) ~(strct_type : llvm_type) ~(strct : llvm_var) ~(offset : int ) : llvm_instr =
+  string_of_var st_var ^ "= getelementptr inbounds " ^ string_of_type strct_type ^ ", " ^string_of_type strct_type ^ "* " ^
+    string_of_var strct ^ ", " ^  "i64 0, i32 " ^ string_of_int offset^ "\n"
+
+
+
+
+
+
 
