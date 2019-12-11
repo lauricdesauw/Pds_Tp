@@ -298,12 +298,12 @@ and gen_fields instr_l =
   match instr_l with
   | DeclInstruction(typ,l_var)::instr_l' ->
      match l_var with
-     | [] -> raise Wrong_field_declaration
-     | t::[] -> match t with
-                | Var(name) -> let f, f_t = gen_fields instr_l' in
+     | [] -> [],[] 
+     | t::q -> match t with
+                | Var(name) -> let f, f_t = gen_fields (DeclInstruction(typ,q)::instr_l') in
                                name::f,typ::f_t
-                | Tab(name,_) -> let f, f_t = gen_fields instr_l' in
-                               name::f,typ::f_t
-                | Func(name, _) -> let f, f_t = gen_fields instr_l' in
-                               name::f,typ::f_t
+                | Tab(name,_) -> let f, f_t = gen_fields (DeclInstruction(typ,q)::instr_l') in
+                                 name::f,typ::f_t
+                | Func(name, _) -> let f, f_t = gen_fields (DeclInstruction(typ,q)::instr_l') in
+                                   name::f,typ::f_t
                                              
