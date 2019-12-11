@@ -18,17 +18,17 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir * symbol_tab
         let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
                         state = Declared} in
         let body_ir,v0 = ir_of_bloc (body,FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) in
-        llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param)
+        llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param id_l)
         , v0, FunctionSymbol(f_symbol)::symT
 
     in 
     ir,sym0
     
-and llvm_var_of_asd_var_l var_l =
-  match var_l with
-  | [] -> []
-  | t::q -> (match t with
-             | Var(name) -> name::(llvm_var_of_asd_var_l q)
+and llvm_var_of_asd_var_l var_l id_l=
+  match var_l, id_l with
+  | [],_ -> []
+  | t::q, id::id_l' -> (match t with
+             | Var(name) -> (name ^ id)::(llvm_var_of_asd_var_l q id_l')
              | _ -> raise Wrong_type_for_parameter
             )
 
@@ -62,8 +62,10 @@ and ir_of_expression : expression * symbol_table -> llvm_ir * llvm_value = funct
                                         let ir0,v0 = ir_of_expression (offset_expr,symT) in
                                         let x = newtmp() in
                                         let tab_typ = llvm_type_of_asd_typ (get_type r) in 
-                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name ^ id)  ~offset:v0 in 
-                                        ir1,LLVM_var x
+                                        let ir1 =ir0 @: llvm_get_elem ~st_var:x ~tab_type:tab_typ ~tab:( "%" ^ name ^ id)  ~offset:v0 in
+                                        let y = newtmp() in
+                                        let ir2 = ir1 @: llvm_load ~store_var:y ~load_var:x ~load_type:LLVM_type_i32 in 
+                                        ir2,LLVM_var y
                                    )
        
     | Func(name, param) -> (match lookup symT name with
@@ -184,7 +186,8 @@ and ir_of_instruction : instruction * symbol_table -> llvm_ir * llvm_value * sym
      let str_val = "%d\n" in
      let str_type = LLVM_type_tab(3) in 
      let ir0 = empty_ir @^ llvm_string ~var:x ~string_value:str_val ~size:size in
-     let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~l_var:(llvm_var_of_asd_var_l st_var) in
+     let id_l = gen_id_l (length_l st_var) in 
+     let ir = ir0 @: llvm_read ~str_var:x ~str_type:LLVM_type_i32 ~var_type:LLVM_type_i32 ~l_var:(llvm_var_of_asd_var_l st_var id_l) in
      ir, LLVM_i32 0, symT
     
 and ir_of_expr_l expr_l symT=

@@ -35,7 +35,8 @@ The hard parts about expressions were:
 
 Blocks are seen as two lists: a list of instructions, which must be declarations and a list of \code{codeObj} which can be instructions (other than declarations), control structures such as loops or blocks. \\
 The toughest part about our block implementation is the symbol table handling. We had to tweak our functions a bit such as \code{ir_of_instruction} to make them return the symbol table. This way, when we have a \code{DefineInstruction}, the new symbol can be added to it. \\
-Because the whole program is treated as a block, if a function is declared, it can be used everywhere after that. 
+Because the whole program is treated as a block, if a function is declared, it can be used everywhere after that.  \\
+The main problem we add with blocks is the ability to define a variable named \code{a} if it haven't be already done in this block. With our first code this was impossible if another varaible \code{a} was defined in another block. So we have add \code{id} to the variables names, which were stocked in the symbol table, like thaht we could look in the symbol table the last appearence of our variable and use the id for the current block. 
 
 \section{Control structure}
 

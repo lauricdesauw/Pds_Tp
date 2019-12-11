@@ -171,7 +171,7 @@ let llvm_while  ~(ir_cond : llvm_ir) ~(ir_body : llvm_ir) ~(cond_var : llvm_var)
 
 let llvm_funct ~(ret_type : llvm_type) ~( funct_name : llvm_var) ~(body_ir : llvm_ir) ~(param : llvm_var list) =
   let param_string = concat_in_string param in 
-  let head = empty_ir @: ("define " ^ string_of_type ret_type ^ string_of_var funct_name ^ "(" ^ param_string ^ ") {\n ") in
+  let head = empty_ir @: ("define " ^ string_of_type ret_type ^ string_of_var funct_name ^ "(" ^ param_string ^ ") {\n") in
   let is_void = if (ret_type = LLVM_type_void) then "ret void" else "ret i32 0" in 
   let queue = empty_ir @:  is_void ^ "\n}\n" in
   head @@ body_ir @@ queue 
