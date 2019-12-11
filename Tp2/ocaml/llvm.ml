@@ -154,6 +154,10 @@ let rec string_of_param ~(param : llvm_var list) =
   
 let llvm_call ~(ret_type : llvm_type) ~(fun_name : llvm_var) ~(param : llvm_var list) =
   "call " ^ string_of_type ret_type ^ " " ^ string_of_var fun_name ^ "(" ^ string_of_param param ^")\n"
+
+let llvm_call_affect ~(ret_var : llvm_var) ~(ret_type : llvm_type) ~(fun_name : llvm_var) ~(param : llvm_var list) =
+string_of_var ret_var ^ " = call " ^ string_of_type ret_type ^ " " ^ string_of_var fun_name ^ "(" ^ string_of_param param ^")\n"
+
   
 (* defining the 'main' function with ir.body as function body *)
 let llvm_define_main (ir : llvm_ir) : llvm_ir =
