@@ -17,7 +17,7 @@ let rec ir_of_ast (prog : codeObj) (symT : symbol_table)  : llvm_ir * symbol_tab
         let id_l = gen_id_l(length_l(param)) in 
         let f_symbol = {return_type = ret_typ; identifier = name ; arguments = get_symbol param symT id_l;
                         state = Declared} in
-        let body_ir,v0 = ir_of_bloc (body,FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) in
+        let body_ir,v0 = ir_of_func_bloc body (FunctionSymbol(f_symbol)::(add_var_to_symT param symT id_l)) param in
         llvm_funct ~ret_type:(llvm_type_of_asd_typ ret_typ) ~funct_name:("@" ^ name) ~body_ir:body_ir ~param:(llvm_var_of_asd_var_l param id_l)
         , v0, FunctionSymbol(f_symbol)::symT
 
@@ -261,3 +261,15 @@ and length_l l =
   match l with
   | [] -> 0
   | t::q -> 1 + (length_l q)
+
+and ir_of_func_bloc  bloc symT param = 
+  match param with
+  | [] -> ir_of_bloc (bloc,symT)
+  | Var(name)::q -> match (lookup symT name) with
+                    | None -> raise (Undeclared_variable name)
+                    | Some r -> let old_id = get_id r in 
+                                let id = new_var_id() in
+                                let ir,v = ir_of_func_bloc bloc (VariableSymbol(Type_Int,name,id)::symT) q in
+                                let ir0 = empty_ir @: llvm_decl ~res_var:(name ^ id) ~res_type:LLVM_type_i32 in 
+                                let ir1 = ir0 @: llvm_affect ~res_var:("%" ^ name ^ id) ~res_type:LLVM_type_i32 ~value:(LLVM_var("%" ^ name ^ old_id )) in 
+                                ir1 @@ ir, v
