@@ -1,5 +1,6 @@
 open ASD
 open Token
+open String
 
 type wrapper =
   | Wrap_None
@@ -119,8 +120,27 @@ and printables = parser
                | [< p = printable; q = printables_aux >] -> p::q
 
 and printable = parser
-              | [< 'TEXT t >] -> P_str t
+              | [< 'TEXT t >] -> P_str (implode (make_linebreaks (explode t)))
               | [< e = expression >] -> P_expr e
+
+and explode s =
+  let rec expl i l =
+    if i < 0 then l else
+    expl (i - 1) (s.[i] :: l) in
+  expl (String.length s - 1) []
+
+and implode l =
+  let result = String.create (List.length l) in
+  let rec imp i = function
+  | [] -> result
+  | c :: l -> result.[i] <- c; imp (i + 1) l in
+  Bytes.to_string (imp 0 l)
+
+and make_linebreaks = function
+    | [] -> []
+    | [t] -> [t]
+    | t1::t2::q when t1 = Char.chr 92 && t2 = 'n' -> (Char.chr 10)::(make_linebreaks q)
+    | t1::t2::q -> t1::(make_linebreaks (t2::q))
 
 and printables_aux = parser
                    | [< 'COM; p = printable; q = printables_aux >] -> p::q

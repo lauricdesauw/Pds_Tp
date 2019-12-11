@@ -9,14 +9,20 @@ FUNC VOID main()
 {
 INT a,b,c
 a:=(2+5)*2*(2+1)
+b:=0
 WHILE a-5
-DO 
-b:=3
+DO
+{
+a:=a-1
+b:=b+1
+PRINT "a: ", a, " b: ", b, "\n "
+}
 DONE
 {
 INT a[3],b
 b:=1
 a[b+1]:=2
+PRINT b
 IF a[b+1] - 2 THEN
 {
 c:=a[0]
